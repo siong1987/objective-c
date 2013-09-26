@@ -66,15 +66,12 @@
 
         PNLog(PNLogGeneralLevel, self, @"{BLOCK} PubNub client connected to: %@", origin);
 
-        // wait 1 second
-        int64_t delayInSeconds = 1.0;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
 
             // then subscribe on channel a
             PNChannel *myChannel = [PNChannel channelWithName:@"a" shouldObservePresence:YES];
             [PubNub subscribeOnChannel:myChannel];
 
-        }); }
+    }
      // In case of error you always can pull out error code and identify what happened and what you can do // additional information is stored inside error's localizedDescription, localizedFailureReason and
      // localizedRecoverySuggestion)
                          errorBlock:^(PNError *connectionError) {

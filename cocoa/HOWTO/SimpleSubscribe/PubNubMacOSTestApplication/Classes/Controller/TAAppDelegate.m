@@ -13,8 +13,6 @@
 #pragma mark Static
 
 // Stores reference on list of channels on which library should subscribe
-static NSString * const kTAChannelName = @"hello_world";
-
 
 #pragma mark - Private interface declaration
 
@@ -50,6 +48,8 @@ static NSString * const kTAChannelName = @"hello_world";
 @implementation TAAppDelegate
 
 @synthesize myChannel;
+@synthesize _responseData;
+@synthesize uuid;
 
 #pragma mark - Instance methods
 
@@ -136,6 +136,10 @@ static NSString * const kTAChannelName = @"hello_world";
 #pragma mark - Console simulation of base functionality
 
 - (void)connect {
+    [self issueLeaveRequest];
+
+    [PubNub unsubscribeFromChannel:self.myChannel];
+    [PubNub disconnect];
 
     // Update PubNub client configuration
     [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
@@ -176,7 +180,7 @@ static NSString * const kTAChannelName = @"hello_world";
 - (void)subscribeOnChannels {
 
     // then subscribe on channel 'zzz'
-    [PubNub subscribeOnChannel:self.myChannel];
+    [PubNub subscribeOnChannel:self.myChannel withPresenceEvent:YES];
 }
 
 
@@ -199,32 +203,58 @@ static NSString * const kTAChannelName = @"hello_world";
 
 
     [self initializePubNubClient];
-    [PubNub setClientIdentifier:@"PubNubOnMac"];
+    self.uuid = @"PubNubMacTest1";
+
+    [PubNub setClientIdentifier:uuid];
     [self connect];
 }
 
 
 - (void)receivedWakeNote: (NSNotification *)notification {
-
     NSLog(@"WOKE UP!");
-    [self connect];
-
 }
 
 - (void)receivedSleepNote: (NSNotification *)notification {
     NSLog(@"GOING TO SLEEP!");
 
-    [PubNub unsubscribeFromChannel:self.myChannel withCompletionHandlingBlock:^(NSArray *channels, PNError *error){
 
-        NSLog(@"FINISHED UNSUBBING.");
-        [PubNub disconnect];
-        NSLog(@"FINISHED DISCO");
 
-    }];
+
+    int64_t delayInSeconds = 1.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+    //dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+
+    NSLog(@"After 5s");
+
+    [self issueLeaveRequest];
+
+    //});
+
 
     NSLog(@"GOOD NITE!");
 
 
+}
+
+- (void)issueLeaveRequest {
+    NSArray *allChannels = [PubNub subscribedChannels];
+    NSMutableArray *tempChannel;
+
+    for (NSString *channel in allChannels) {
+        [tempChannel addObject:channel];
+    }
+
+    NSString *channelCSV = [tempChannel componentsJoinedByString:@","];
+
+    NSString *leaveURL = @"http://pupsub.pubnub.com/v2/presence/sub_key/demo/channel/";
+    NSString *populatedLeaveURL = [leaveURL stringByAppendingFormat:@"%@/leave?uuid=%@", channelCSV, self.uuid];
+
+    NSLog(@"URL: %@", populatedLeaveURL);
+
+    //NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://pupsub.pubnub.com/v2/presence/sub_key/demo/channel/c,b,a/leave?uuid=PubNubOnMac1"]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:populatedLeaveURL]];
+
+    NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
 
 
@@ -382,6 +412,43 @@ didFailParticipantsListDownloadForChannel:(PNChannel *)channel
 
     PNLog(PNLogGeneralLevel, self, @"PubNub client failed to download participants list for channel %@ because of error: %@",
             channel, error);
+}
+
+
+#pragma mark NSURLConnection Delegate Methods
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+    // A response has been received, this is where we initialize the instance var you created
+    // so that we can append data to it in the didReceiveData method
+    // Furthermore, this method is called each time there is a redirect so reinitializing it
+    // also serves to clear it
+    _responseData = [[NSMutableData alloc] init];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+    // Append the new data to the instance variable you declared
+    [_responseData appendData:data];
+}
+
+- (NSCachedURLResponse *)connection:(NSURLConnection *)connection
+                  willCacheResponse:(NSCachedURLResponse*)cachedResponse {
+    // Return nil to indicate not necessary to store a cached response for this connection
+    return nil;
+}
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+    // The request is complete and data has been received
+    // You can parse the stuff in your instance variable now
+    NSLog(@"DATA RECIEVED:");
+    NSLog(@"%@", _responseData);
+
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+    // The request has failed for some reason!
+    // Check the error var
+
+    NSLog(@"ERROR RECIEVED", error);
 }
 
 #pragma mark -

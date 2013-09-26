@@ -8,9 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface TAAppDelegate : NSObject <NSApplicationDelegate>
+@interface TAAppDelegate : NSObject <NSApplicationDelegate, NSURLConnectionDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
 @property PNChannel *myChannel;
+@property NSMutableData *_responseData;
+@property NSString *uuid;
 
 @end
