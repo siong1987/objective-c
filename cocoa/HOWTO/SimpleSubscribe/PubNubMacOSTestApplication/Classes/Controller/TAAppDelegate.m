@@ -57,7 +57,7 @@
 
     [PubNub setDelegate:self];
 
-    self.myChannel = [PNChannel channelWithName:@"a"];
+    self.myChannel = [PNChannel channelWithName:@"zzz"];
 
     // Subscribe for client connection state change
     // (observe when client will be disconnected)
@@ -138,8 +138,8 @@
 - (void)connect {
     [self issueLeaveRequest];
 
-    [PubNub unsubscribeFromChannel:self.myChannel];
-    [PubNub disconnect];
+//    [PubNub unsubscribeFromChannel:self.myChannel];
+//    [PubNub disconnect];
 
     // Update PubNub client configuration
     [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
@@ -201,9 +201,6 @@
                                                                name:NSWorkspaceWillSleepNotification
                                                              object:nil] ;
 
-
-
-
     [self initializePubNubClient];
     self.uuid = @"PubNubMacTest1";
 
@@ -239,7 +236,7 @@
 
     //NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://pupsub.pubnub.com/v2/presence/sub_key/demo/channel/c,b,a/leave?uuid=PubNubOnMac1"]];
 
-    if (channelCSV) {
+    if ([channelCSV length] != 0) {
         NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:populatedLeaveURL]];
         NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:request delegate:self];
     }
@@ -428,8 +425,9 @@ didFailParticipantsListDownloadForChannel:(PNChannel *)channel
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
     // The request is complete and data has been received
     // You can parse the stuff in your instance variable now
+    NSString *dataString = [[NSString alloc] initWithData:_responseData encoding:NSUTF8StringEncoding];
     NSLog(@"DATA RECIEVED:");
-    NSLog(@"%@", _responseData);
+    NSLog(@"%@", dataString);
 
 }
 
