@@ -179,8 +179,10 @@
 
 - (void)subscribeOnChannels {
 
-    // then subscribe on channel 'zzz'
-    [PubNub subscribeOnChannel:self.myChannel withPresenceEvent:YES];
+    [PubNub subscribeOnChannel:self.myChannel withPresenceEvent:YES andCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
+
+    }];
+
 }
 
 
@@ -216,32 +218,16 @@
 
 - (void)receivedSleepNote: (NSNotification *)notification {
     NSLog(@"GOING TO SLEEP!");
-
-
-
-
-    int64_t delayInSeconds = 1.0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-    //dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-
-    NSLog(@"After 5s");
-
     [self issueLeaveRequest];
-
-    //});
-
-
     NSLog(@"GOOD NITE!");
-
-
 }
 
 - (void)issueLeaveRequest {
     NSArray *allChannels = [PubNub subscribedChannels];
-    NSMutableArray *tempChannel;
+    NSMutableArray *tempChannel = [[NSMutableArray alloc]init];
 
-    for (NSString *channel in allChannels) {
-        [tempChannel addObject:channel];
+    for (PNChannel *channel in allChannels) {
+        [tempChannel addObject:[NSString stringWithString:channel.name]];
     }
 
     NSString *channelCSV = [tempChannel componentsJoinedByString:@","];
@@ -252,9 +238,12 @@
     NSLog(@"URL: %@", populatedLeaveURL);
 
     //NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://pupsub.pubnub.com/v2/presence/sub_key/demo/channel/c,b,a/leave?uuid=PubNubOnMac1"]];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:populatedLeaveURL]];
 
-    NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+    if (channelCSV) {
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:populatedLeaveURL]];
+        NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+    }
+
 }
 
 
