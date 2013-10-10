@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5ABF0127180719E900376232 /* PNConnectionBadJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 963A849017FCA9B100D8DD4E /* PNConnectionBadJson.m */; };
+		5ABF0128180719ED00376232 /* FakeStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 963A848E17FCA9B100D8DD4E /* FakeStub.m */; };
+		5ABF0129180719FE00376232 /* TimeOutTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ACCA97B17F3201D00FE90CF /* TimeOutTest.m */; };
 		5ACCA97C17F3201D00FE90CF /* Swizzler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ACCA97917F3201D00FE90CF /* Swizzler.m */; };
 		5ACCA98117F3202400FE90CF /* HowToTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ACCA98017F3202400FE90CF /* HowToTests.m */; };
 		5ACCA98817F3207300FE90CF /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C32250166DF848006DB535 /* SenTestingKit.framework */; };
@@ -1150,6 +1153,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				5ACCA99B17F3208200FE90CF /* W_ChaosTest.m in Sources */,
+				5ABF0128180719ED00376232 /* FakeStub.m in Sources */,
+				5ABF0127180719E900376232 /* PNConnectionBadJson.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1283,6 +1288,7 @@
 				DD71BD64F3BF85B30FD8BC12 /* PNPushNotificationsEnabledChannelsRequest.m in Sources */,
 				DD71B5FDE33189422F9920F6 /* PNPushNotificationsRemoveRequest.m in Sources */,
 				DD71B157DE33BBCD15629532 /* NSArray+PNAdditions.m in Sources */,
+				5ABF0129180719FE00376232 /* TimeOutTest.m in Sources */,
 				DD71B453EB73756A3D311356 /* NSInvocation+PNAdditions.m in Sources */,
 				79DC83611773A8680061A76C /* PNCryptoHelperTest.m in Sources */,
 				DD71B0AD141CDCDA0B429436 /* NSDate+PNAdditions.m in Sources */,

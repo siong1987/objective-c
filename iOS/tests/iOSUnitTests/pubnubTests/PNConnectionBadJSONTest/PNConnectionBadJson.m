@@ -102,6 +102,10 @@ void PNCFRelease(CF_RELEASES_ARGUMENT void *CFObject) {
 	return NO;
 }
 
+- (BOOL)isNeedReturnAfterRead {
+	return NO;
+}
+
 - (void)readStreamContent {
 
     PNLog(PNLogConnectionLayerInfoLevel, self, @"[CONNECTION::%@::READ] READING ARRIVED DATA... (STATE: %d)",
@@ -115,9 +119,11 @@ void PNCFRelease(CF_RELEASES_ARGUMENT void *CFObject) {
 		if( [self isNeedCloseSocket] == YES )
 			CFReadStreamClose( (CFReadStreamRef)[self performSelector:@selector(socketReadStream)]);
         CFIndex readedBytesCount = CFReadStreamRead( (CFReadStreamRef)[self performSelector:@selector(socketReadStream)], buffer, kPNStreamBufferSize);
+		if( [self isNeedReturnAfterRead] == YES )
+			return;
 
-//		NSData *data = [NSData dataWithBytes: buffer length: readedBytesCount];
-//		[data writeToFile: [NSString stringWithFormat: @"/Users/tuller/data/%ld.txt", readedBytesCount] atomically: YES];
+		//		NSData *data = [NSData dataWithBytes: buffer length: readedBytesCount];
+		//		[data writeToFile: [NSString stringWithFormat: @"/Users/tuller/data/%ld.txt", readedBytesCount] atomically: YES];
 
 		[self updateBuffer: buffer];
 		if( [self isNeedUpdateBuffer] == YES ) {
@@ -129,7 +135,6 @@ void PNCFRelease(CF_RELEASES_ARGUMENT void *CFObject) {
 
             PNLog(PNLogConnectionLayerInfoLevel, self, @"[CONNECTION::%@::READ] READED %d BYTES (STATE: %d)",
                   [(id)self name] ? [(id)self name] : self, readedBytesCount, [(id)self state]);
-
 
             // Check whether debugging options is enabled to show received response or not
             if (PNLoggingEnabledForLevel(PNLogConnectionLayerHTTPLoggingLevel) || PNHTTPDumpOutputToFileEnabled()) {
@@ -174,7 +179,6 @@ void PNCFRelease(CF_RELEASES_ARGUMENT void *CFObject) {
         }
         // Looks like there is no data or error occurred while tried to read out stream content
         else if (readedBytesCount < 0) {
-
             PNLog(PNLogConnectionLayerInfoLevel, self, @"[CONNECTION::%@::READ] READ ERROR (STATE: %d)",
                   [(id)self name] ? [(id)self name] : self, [(id)self state]);
 
@@ -182,6 +186,7 @@ void PNCFRelease(CF_RELEASES_ARGUMENT void *CFObject) {
 			if( error == nil && [self isNeedCreateError] == YES ) {
 				error = CFErrorCreate(kCFAllocatorDefault, kCFErrorDomainOSStatus, -9800, NULL);
 			}
+
 			unsigned long state = [(id)self state];
             PNBitOn(&state, PNReadStreamError);
 			[(FakeStub*)self setState: state];
@@ -191,6 +196,7 @@ void PNCFRelease(CF_RELEASES_ARGUMENT void *CFObject) {
         }
     }
 }
+
 
 -(BOOL)isNeedCreateError {
 	return NO;

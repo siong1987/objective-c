@@ -133,6 +133,7 @@
     }
                          errorBlock:^(PNError *connectionError) {
 //    BOOL isControlsEnabled = connectionError.code != kPNClientConnectionFailedOnInternetFailureError;
+							 PNLog(PNLogGeneralLevel, nil, @"connectionError: %@", connectionError);
 						 }];
 }
 
@@ -186,7 +187,7 @@
 }
 
 - (void)handleClientDidConnectToOriginNotification:(NSNotification *)notification {
-	PNLog(PNLogGeneralLevel, nil, @"handleClientDidConnectToOriginNotification: %@", notification);
+	NSLog(@"handleClientDidConnectToOriginNotification: %@", notification);
 	log.text = [log.text stringByAppendingFormat:@"%@ Connected (%2.2f sec). Start reconnect\n", [NSDate date], -[lastWiFiReconnect timeIntervalSinceNow]];
 //	[self wifiOff];
 	[self wifiOn];

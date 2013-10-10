@@ -12,7 +12,6 @@
 #import "PNConfiguration.h"
 #import "PNWriteBuffer.h"
 #import "PNConstants.h"
-#import "PNDataManager.h"
 #import "PNConnection.h"
 #import "PNHereNowResponseParser.h"
 #import "Swizzler.h"
@@ -43,22 +42,23 @@
     [super setUp];
 	semaphoreNotification = dispatch_semaphore_create(0);
 	pnChannels = [PNChannel channelsWithNames:@[@"iosdev", @"andoirddev"]];
-	[PubNub disconnect];
-    [PubNub setDelegate:self];
-
-	PNConfiguration *configuration = [PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo" subscribeKey:@"demo" secretKey: nil cipherKey: nil];
-    [PubNub setConfiguration: configuration];
-	[PubNub sharedInstance].configuration.autoReconnectClient = NO;
-//	[PubNub sharedInstance].restoringConnection = NO;
-    [PubNub connectWithSuccessBlock:^(NSString *origin) {
-
-        PNLog(PNLogGeneralLevel, nil, @"{BLOCK} PubNub client connected to: %@", origin);
-//		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 30.0] ];
-		[PubNub sharedInstance].configuration.autoReconnectClient = NO;
-    }
-      errorBlock:^(PNError *connectionError) {
-		  PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
-	}];
+	[self resetConnection];
+//	[PubNub disconnect];
+//    [PubNub setDelegate:self];
+//
+//	PNConfiguration *configuration = [PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo" subscribeKey:@"demo" secretKey: nil cipherKey: nil];
+//    [PubNub setConfiguration: configuration];
+//	[PubNub sharedInstance].configuration.autoReconnectClient = NO;
+////	[PubNub sharedInstance].restoringConnection = NO;
+//    [PubNub connectWithSuccessBlock:^(NSString *origin) {
+//
+//        PNLog(PNLogGeneralLevel, nil, @"{BLOCK} PubNub client connected to: %@", origin);
+////		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 30.0] ];
+//		[PubNub sharedInstance].configuration.autoReconnectClient = NO;
+//    }
+//      errorBlock:^(PNError *connectionError) {
+//		  PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
+//	}];
 }
 
 //subscriptionRequestTimeout
@@ -71,9 +71,39 @@
     PNLog(PNLogGeneralLevel, self, @"PubNub client successfully subscribed on channels: %@", channels);
 }
 
+-(void)resetConnection {
+	[PubNub resetClient];
+	int64_t delayInSeconds = 2;
+	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+
+		[PubNub setDelegate:self];
+		[PubNub setConfiguration: [PNConfiguration defaultConfiguration]];
+
+		[PubNub connectWithSuccessBlock:^(NSString *origin) {
+
+			PNLog(PNLogGeneralLevel, nil, @"\n\n\n\n\n\n\n{BLOCK} PubNub client connected to: %@", origin);
+			dispatch_semaphore_signal(semaphore);
+		}
+							 errorBlock:^(PNError *connectionError) {
+								 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
+								 dispatch_semaphore_signal(semaphore);
+								 STFail(@"connectionError %@", connectionError);
+							 }];
+	});
+	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+								 beforeDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+	[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5]];
+	BOOL isConnected = [[PubNub sharedInstance] isConnected];
+	STAssertTrue( isConnected, @"connect fail");
+}
 
 - (void)test20SubscriptionRequestTimeout
 {
+	[self resetConnection];
+
 	__block NSDate *start = [NSDate date];
 	__block BOOL isCompletionBlockCalled = NO;
 	subscriptionDidFailWithErrorCalled = NO;
@@ -85,12 +115,12 @@
 	 {
 		 isCompletionBlockCalled = YES;
 		 NSTimeInterval interval = -[start timeIntervalSinceNow];
-		 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout);
+		 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout, 2, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout);
 		 STAssertNotNil( subscriptionError, @"subscriptionError must be not nil");
 	 }];
-//	for( int i=0; i<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
-//		isCompletionBlockCalled == NO && subscriptionDidFailWithErrorCalled == NO; i++ )
-//		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
+	for( int i=0; i<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
+		isCompletionBlockCalled == NO && subscriptionDidFailWithErrorCalled == NO; i++ )
+		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 	[Swizzler unswizzleFromReceipt:receipt];
 	STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
 	STAssertTrue(subscriptionDidFailWithErrorCalled, @"Notification not called");
@@ -104,6 +134,8 @@
 }
 - (void)test30ParticipantsListForChannelTimeout
 {
+	[self resetConnection];
+
 	SwizzleReceipt *receipt = [self setFakeReadStreamContent];
 
 	notificationParticipantsListCalled = NO;
@@ -117,7 +149,9 @@
 		 {
 			 isCompletionBlockCalled = YES;
 			 NSTimeInterval interval = -[start timeIntervalSinceNow];
-			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
+		     PNLog(PNLogGeneralLevel, self, @"test30ParticipantsListForChannelTimeout %f", interval);
+
+			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 2, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
 			 STAssertNotNil( error, @"requestParticipantsList error must be not nil");
 		 }];
 		for( int j=0; j<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+1 &&
@@ -131,11 +165,14 @@
 
 - (void)test30ParticipantsListForChannelTimeout1
 {
-	SwizzleReceipt *receipt = [self setFakeReadStreamContent];
-
-	notificationParticipantsListCalled = NO;
 	for( int i=0; i<pnChannels.count; i++ )
 	{
+		[self resetConnection];
+
+		SwizzleReceipt *receipt = [self setFakeReadStreamContent];
+
+		notificationParticipantsListCalled = NO;
+
 		__block NSDate *start = [NSDate date];
 		__block BOOL isCompletionBlockCalled = NO;
 
@@ -144,7 +181,8 @@
 		 {
 			 isCompletionBlockCalled = YES;
 			 NSTimeInterval interval = -[start timeIntervalSinceNow];
-			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
+		     PNLog(PNLogGeneralLevel, self, @"test30ParticipantsListForChannelTimeout1 %f", interval);
+			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 2, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
 			 STAssertNotNil( error, @"requestParticipantsList error must be not nil");
 		 }];
 		for( int j=0; j<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+1 &&
@@ -152,8 +190,9 @@
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 		STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
 		STAssertTrue(notificationParticipantsListCalled, @"Notification not called");
+
+		[Swizzler unswizzleFromReceipt:receipt];
 	}
-	[Swizzler unswizzleFromReceipt:receipt];
 }
 
 //history timeout
@@ -164,11 +203,14 @@
 
 - (void)test40RequestHistoryForChannelTimeout
 {
-	SwizzleReceipt *receipt = [self setFakeReadStreamContent];
-
-	notificationFailHistoryDownloadCalled = NO;
 	for( int i=0; i<pnChannels.count; i++ )
 	{
+		[self resetConnection];
+
+		SwizzleReceipt *receipt = [self setFakeReadStreamContent];
+
+		notificationFailHistoryDownloadCalled = NO;
+
 		__block NSDate *start = [NSDate date];
 		__block BOOL isCompletionBlockCalled = NO;
 
@@ -185,6 +227,7 @@
 		 {
 			 isCompletionBlockCalled = YES;
 			 NSTimeInterval interval = -[start timeIntervalSinceNow];
+		     PNLog(PNLogGeneralLevel, self, @"test40RequestHistoryForChannelTimeout %f", interval);
 			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
 			 STAssertNotNil( error, @"requestParticipantsList error must be not nil");
 		 }];
@@ -193,8 +236,8 @@
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 		STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
 		STAssertTrue(notificationFailHistoryDownloadCalled, @"Notification not called");
+		[Swizzler unswizzleFromReceipt:receipt];
 	}
-	[Swizzler unswizzleFromReceipt:receipt];
 }
 
 //message timeout
@@ -204,11 +247,14 @@
 
 - (void)test50SendMessageTimeout
 {
-	SwizzleReceipt *receipt = [self setFakeReadStreamContent];
-
-	notificationFailMessageSendCalled = NO;
 	for( int i=0; i<pnChannels.count; i++ )
 	{
+		[self resetConnection];
+
+		SwizzleReceipt *receipt = [self setFakeReadStreamContent];
+
+		notificationFailMessageSendCalled = NO;
+
 		__block NSDate *start = [NSDate date];
 		__block BOOL isCompletionBlockCalled = NO;
 
@@ -216,6 +262,7 @@
 									  withCompletionBlock:^(PNMessageState messageSendingState, id data) {
 			 isCompletionBlockCalled = YES;
 			 NSTimeInterval interval = -[start timeIntervalSinceNow];
+		     PNLog(PNLogGeneralLevel, self, @"test50SendMessageTimeout %f", interval);
 			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
 			 STAssertFalse(messageSendingState==PNMessageSent, @"messageSendingState==PNMessageSent %@", data);
 		 }];
@@ -224,8 +271,9 @@
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 		STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
 		STAssertTrue(notificationFailMessageSendCalled, @"Notification not called");
+
+		[Swizzler unswizzleFromReceipt:receipt];
 	}
-	[Swizzler unswizzleFromReceipt:receipt];
 }
 
 //timeToken timeout
@@ -236,6 +284,8 @@
 
 -(void)test60RequestServerTimeTimeout
 {
+	[self resetConnection];
+
 	SwizzleReceipt *receipt = [self setFakeReadStreamContent];
 
 	notificationTokenReceiveDidFailCallled = NO;
@@ -245,7 +295,7 @@
 	{
 		 isCompletionBlockCalled = YES;
 		 NSTimeInterval interval = -[start timeIntervalSinceNow];
-		 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].nonSubscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
+		 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 2, @"Timeout [PubNub sharedInstance].nonSubscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
 		 STAssertNotNil( error, @"error must be not nil");
 	}];
 	for( int i=0; i<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+1 &&
@@ -263,13 +313,15 @@
 //			 forInstancesOfClass:[PNConnection class]
 
 -(SwizzleReceipt*)setFakeReadStreamContent {
-	return [Swizzler swizzleSelector:@selector(handleReadStreamHasData)
+	return [Swizzler swizzleSelector:@selector(isNeedReturnAfterRead)
 				 forInstancesOfClass:[PNConnection class]
 						   withBlock:
 			^(id self, SEL sel){
-				PNLog(PNLogGeneralLevel, nil, @"PNConnection fake handleReadStreamHasData");
-				return nil;
+				PNLog(PNLogGeneralLevel, nil, @"PNConnection isNeedReturnAfterRead");
+				return YES;
 			}];
 }
+
+
 
 @end
