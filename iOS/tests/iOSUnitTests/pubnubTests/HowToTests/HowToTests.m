@@ -779,8 +779,10 @@
                            limit:(NSUInteger)limit
                   reverseHistory:(BOOL)shouldReverseMessageHistory
 {
-	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+//	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 	handleClientMessageHistoryProcess = NO;
+	__block BOOL isCompletionBlockCalled = NO;
+	NSDate *start = [NSDate date];
 	[PubNub requestHistoryForChannel:channel
 								from:startDate
 								  to:endDate
@@ -792,12 +794,23 @@
 									   PNDate *endDate,
 									   PNError *error)
 	 {
-		 dispatch_semaphore_signal(semaphore);
+//		 dispatch_semaphore_signal(semaphore);
+		 isCompletionBlockCalled = YES;
+
+		 NSTimeInterval interval = -[start timeIntervalSinceNow];
+		 NSLog(@"requestHistoryForChannel interval %f", interval);
+		 STAssertTrue( interval < [PubNub sharedInstance].configuration.subscriptionRequestTimeout+1, @"Timeout error, %d instead of %d", interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout);
+
 		 STAssertNil( error, @"error %@", error);
 	 }];
-	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW) || handleClientMessageHistoryProcess == NO)
-		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
-								 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+//	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW) || handleClientMessageHistoryProcess == NO)
+//		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+//								 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+	for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
+		isCompletionBlockCalled == NO; j++ )
+		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
+	STAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	STAssertTrue( handleClientMessageHistoryProcess, @"notification not called");
 }
 
 -(void)test40RequestHistoryForChannel
