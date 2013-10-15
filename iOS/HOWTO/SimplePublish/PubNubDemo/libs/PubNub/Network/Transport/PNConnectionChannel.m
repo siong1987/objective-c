@@ -318,7 +318,8 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
 
         // Destroy connection communication instance
         self.connection.delegate = nil;
-        self.connection = nil;
+        [PNConnection destroyConnection:_connection];
+        _connection = nil;
 
         disconnectionCompletionSimulation();
     }
@@ -341,7 +342,9 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
         else {
 
             // Destroy connection communication instance
-            self.connection = nil;
+            self.connection.delegate = nil;
+            [PNConnection destroyConnection:_connection];
+            _connection = nil;
 
             disconnectionCompletionSimulation();
         }
@@ -352,8 +355,10 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
         PNLog(PNLogCommunicationChannelLayerInfoLevel, self, @"[CHANNEL::%@] DISCONNECTING... (STATE: %d)",
               self.name, self.state);
 
-
-        self.connection = nil;
+        self.connection.delegate = nil;
+        [PNConnection destroyConnection:_connection];
+        _connection = nil;
+        
         disconnectionCompletionSimulation();
     }
     else {
@@ -361,8 +366,9 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
         PNLog(PNLogCommunicationChannelLayerInfoLevel, self, @"[CHANNEL::%@] ALREADY DISCONNECTED (STATE: %d)",
               self.name, self.state);
 
-
-        self.connection = nil;
+        self.connection.delegate = nil;
+        [PNConnection destroyConnection:_connection];
+        _connection = nil;
     }
 }
 
@@ -500,8 +506,23 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
            [self isWaitingStoredRequestCompletion:requestIdentifier];
 }
 
+- (BOOL)shouldScheduleRequest:(PNBaseRequest *)request {
+
+    return YES;
+}
+
+- (void)handleRequestProcessingDidFail:(PNBaseRequest *)request withError:(PNError *)error {
+
+    NSAssert1(0, @"%s SHOULD BE RELOADED IN SUBCLASSES", __PRETTY_FUNCTION__);
+}
+
+- (void)makeScheduledRequestsFail:(NSArray *)requestsList withError:(PNError *)processingError {
+
+    NSAssert1(0, @"%s SHOULD BE RELOADED IN SUBCLASSES", __PRETTY_FUNCTION__);
+}
+
 - (void)purgeObservedRequestsPool {
-    
+
     [self.observedRequests removeAllObjects];
 }
 
@@ -657,6 +678,24 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
     return hasRequestsWithClass;
 }
 
+- (NSArray *)requestsWithClass:(Class)requestClass {
+
+    NSMutableArray *requests = [NSMutableArray array];
+
+    [self.storedRequestsList enumerateObjectsUsingBlock:^(id requestIdentifier, NSUInteger requestIdentifierIdx,
+            BOOL *requestIdentifierEnumeratorStop) {
+
+        PNBaseRequest *request = [self storedRequestWithIdentifier:requestIdentifier];
+        if ([request isKindOfClass:requestClass]) {
+
+            [requests addObject:request];
+        }
+    }];
+
+
+    return requests;
+}
+
 /**
  * Create lazily create connection instance (useful in cased when it was necessary to destroy connection and there
  * was no time to create new one
@@ -751,37 +790,45 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing
              outOfOrder:(BOOL)shouldEnqueueRequestOutOfOrder
        launchProcessing:(BOOL)shouldLaunchRequestsProcessing {
 
-    if([self.requestsQueue enqueueRequest:request outOfOrder:shouldEnqueueRequestOutOfOrder]) {
+    if ([self shouldScheduleRequest:request]) {
 
-        if (shouldObserveProcessing) {
+        if([self.requestsQueue enqueueRequest:request outOfOrder:shouldEnqueueRequestOutOfOrder]) {
 
-            [self.observedRequests setValue:request forKey:request.shortIdentifier];
+            if (shouldObserveProcessing) {
+
+                [self.observedRequests setValue:request forKey:request.shortIdentifier];
+            }
+
+            if ([self shouldStoreRequest:request]) {
+
+                [self.storedRequestsList addObject:request.shortIdentifier];
+                [self.storedRequests setValue:@{PNStoredRequestKeys.request:request,
+                                                PNStoredRequestKeys.isObserved :@(shouldObserveProcessing)}
+                                       forKey:request.shortIdentifier];
+            }
+
+            if (shouldLaunchRequestsProcessing) {
+
+                // Launch communication process on sockets by triggering requests queue processing
+                [self scheduleNextRequest];
+            }
         }
+    }
+    else {
 
-        if ([self shouldStoreRequest:request]) {
-
-            [self.storedRequestsList addObject:request.shortIdentifier];
-            [self.storedRequests setValue:@{PNStoredRequestKeys.request:request,
-                                            PNStoredRequestKeys.isObserved :@(shouldObserveProcessing)}
-                                   forKey:request.shortIdentifier];
-        }
-
-        if (shouldLaunchRequestsProcessing) {
-
-            // Launch communication process on sockets by triggering requests queue processing
-            [self scheduleNextRequest];
-        }
+        PNLog(PNLogCommunicationChannelLayerInfoLevel, self, @"[CHANNEL::%@] IGNORE SCHEDULED REQUEST: %@ (STATE: %d)",
+              self.name, request, self.state);
     }
 }
 
 - (void)scheduleNextRequest {
 
-    [self.connection scheduleNextRequestExecution];
+    [_connection scheduleNextRequestExecution];
 }
 
 - (void)unscheduleNextRequest {
 
-    [self.connection unscheduleRequestsExecution];
+    [_connection unscheduleRequestsExecution];
 }
 
 - (void)unscheduleRequest:(PNBaseRequest *)request {
@@ -924,6 +971,11 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing
     PNBitClear(&_state);
     PNBitOn(&_state, PNConnectionChannelConnected);
 
+    if ([self.storedRequestsList count]) {
+
+        // Ask to reschedule required requests
+        [self rescheduleStoredRequests:self.storedRequestsList];
+    }
 
     // Launch communication process on sockets by triggering requests queue processing
     [self scheduleNextRequest];
@@ -1053,8 +1105,7 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing
 - (void)connection:(PNConnection *)connection willReconnectToHostAfterError:(NSString *)hostName {
 
     PNLog(PNLogCommunicationChannelLayerInfoLevel, self, @"[CHANNEL::%@] WILL RESTORE CONNECTION AFTER ERROR (STATE: "
-            "%d)",
-          self.name, self.state);
+          "%d)",  self.name, self.state);
 
 
     [self stopTimeoutTimerForRequest:nil];
@@ -1116,9 +1167,15 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing
     [self stopTimeoutTimerForRequest:nil];
     [self unscheduleNextRequest];
 
-    [self clearScheduledRequestsQueue];
-    [self purgeObservedRequestsPool];
-    [self purgeStoredRequestsPool];
+    if ([self.storedRequestsList count]) {
+
+        PNError *error = nil;
+        if ([[PubNub sharedInstance].reachability isServiceAvailable]) {
+
+            error = [PNError errorWithCode:kPNRequestExecutionFailedClientNotReadyError];
+        }
+        [self makeScheduledRequestsFail:[NSArray arrayWithArray:self.storedRequestsList] withError:error];
+    }
 
 
     if (isExpected) {
@@ -1138,16 +1195,25 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing
     // Check whether channel is in suitable state to handle this event or not
     BOOL isExpected = PNBitsIsOn(self.state, NO, PNConnectionChannelDisconnected, PNConnectionChannelDisconnecting,
                                                  BITS_LIST_TERMINATOR);
-    PNBitClear(&_state);
-    PNBitOn(&_state, PNConnectionChannelDisconnected);
+    if (isExpected) {
+
+        PNBitClear(&_state);
+        PNBitOn(&_state, PNConnectionChannelDisconnected);
+    }
 
 
     [self stopTimeoutTimerForRequest:nil];
     [self unscheduleNextRequest];
 
-    [self clearScheduledRequestsQueue];
-    [self purgeObservedRequestsPool];
-    [self purgeStoredRequestsPool];
+    if ([self.storedRequestsList count]) {
+
+        PNError *error = nil;
+        if ([[PubNub sharedInstance].reachability isServiceAvailable]) {
+
+            error = [PNError errorWithCode:kPNRequestExecutionFailedClientNotReadyError];
+        }
+        [self makeScheduledRequestsFail:[NSArray arrayWithArray:self.storedRequestsList] withError:error];
+    }
 
 
     if(isExpected) {
@@ -1220,7 +1286,7 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing
     // Check whether all streams closed or not (in case if server closed only one from read/write streams)
     if (![connection isDisconnected]) {
 
-        [connection disconnectByUserRequest:NO];
+        [connection disconnectByInternalRequest];
     }
 
 

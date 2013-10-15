@@ -34,8 +34,13 @@
 
 #pragma mark - Logging
 
+// Stores maximum file syze which should be stored on file system.
+// As soon as limit will be reached, beginning of the file will be truncated.
+// Default file size is 5Mb
+#define kPNLogMaximumLogFileSize (10 * 1024 * 1024)
+
 #define PNLOG_LOGGING_ENABLED 1
-#define PNLOG_STORE_LOG_TO_FILE 0
+#define PNLOG_STORE_LOG_TO_FILE 1
 #define PNLOG_GENERAL_LOGGING_ENABLED 1
 #define PNLOG_DELEGATE_LOGGING_ENABLED 1
 #define PNLOG_REACHABILITY_LOGGING_ENABLED 1
@@ -48,6 +53,37 @@
 #define PNLOG_CONNECTION_LAYER_INFO_LOGGING_ENABLED 1
 #define PNLOG_CONNECTION_LAYER_RAW_HTTP_RESPONSE_LOGGING_ENABLED 0
 #define PNLOG_CONNECTION_LAYER_RAW_HTTP_RESPONSE_STORING_ENABLED 0
+
+#ifdef PN_TESTING
+    #undef PNLOG_LOGGING_ENABLED
+    #define PNLOG_LOGGING_ENABLED 1
+    #undef PNLOG_STORE_LOG_TO_FILE
+    #define PNLOG_STORE_LOG_TO_FILE 1
+    #undef PNLOG_GENERAL_LOGGING_ENABLED
+    #define PNLOG_GENERAL_LOGGING_ENABLED 1
+    #undef PNLOG_DELEGATE_LOGGING_ENABLED
+    #define PNLOG_DELEGATE_LOGGING_ENABLED 1
+    #undef PNLOG_REACHABILITY_LOGGING_ENABLED
+    #define PNLOG_REACHABILITY_LOGGING_ENABLED 1
+    #undef PNLOG_DESERIALIZER_INFO_LOGGING_ENABLED
+    #define PNLOG_DESERIALIZER_INFO_LOGGING_ENABLED 1
+    #undef PNLOG_DESERIALIZER_ERROR_LOGGING_ENABLED
+    #define PNLOG_DESERIALIZER_ERROR_LOGGING_ENABLED 1
+    #undef PNLOG_COMMUNICATION_CHANNEL_LAYER_ERROR_LOGGING_ENABLED
+    #define PNLOG_COMMUNICATION_CHANNEL_LAYER_ERROR_LOGGING_ENABLED 1
+    #undef PNLOG_COMMUNICATION_CHANNEL_LAYER_INFO_LOGGING_ENABLED
+    #define PNLOG_COMMUNICATION_CHANNEL_LAYER_INFO_LOGGING_ENABLED 1
+    #undef PNLOG_COMMUNICATION_CHANNEL_LAYER_WARN_LOGGING_ENABLED
+    #define PNLOG_COMMUNICATION_CHANNEL_LAYER_WARN_LOGGING_ENABLED 1
+    #undef PNLOG_CONNECTION_LAYER_ERROR_LOGGING_ENABLED
+    #define PNLOG_CONNECTION_LAYER_ERROR_LOGGING_ENABLED 1
+    #undef PNLOG_CONNECTION_LAYER_INFO_LOGGING_ENABLED
+    #define PNLOG_CONNECTION_LAYER_INFO_LOGGING_ENABLED 1
+    #undef PNLOG_CONNECTION_LAYER_RAW_HTTP_RESPONSE_LOGGING_ENABLED
+    #define PNLOG_CONNECTION_LAYER_RAW_HTTP_RESPONSE_LOGGING_ENABLED 1
+    #undef PNLOG_CONNECTION_LAYER_RAW_HTTP_RESPONSE_STORING_ENABLED
+    #define PNLOG_CONNECTION_LAYER_RAW_HTTP_RESPONSE_STORING_ENABLED 1
+#endif
 
 typedef enum _PNLogLevels {
     PNLogGeneralLevel,
@@ -179,7 +215,6 @@ void PNLogDumpOutputToFile(NSString *output) {
         output = [[[NSDate date] consoleOutputTimestamp] stringByAppendingFormat:@"> %@\n", output];
 
 
-
         FILE *consoleDumpFilePointer = fopen([consoleDumpFilePath UTF8String], "a+");
         if (consoleDumpFilePointer == NULL) {
 
@@ -190,6 +225,76 @@ void PNLogDumpOutputToFile(NSString *output) {
             const char *cOutput = [output UTF8String];
             fwrite(cOutput, strlen(cOutput), 1, consoleDumpFilePointer);
             fclose(consoleDumpFilePointer);
+        }
+    }
+}
+
+static void PNLogDumpFileTruncate();
+void PNLogDumpFileTruncate() {
+
+
+    if (PNLOG_STORE_LOG_TO_FILE) {
+
+        // Retrieve path to the 'Documents' folder
+        NSString *documentsFolder = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+        NSString *consoleDumpFilePath = [documentsFolder stringByAppendingPathComponent:@"pubnub-console-dump.txt"];
+        NSString *oldConsoleDumpFilePath = [documentsFolder stringByAppendingPathComponent:@"pubnub-console-dump.1.txt"];
+
+
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        if ([fileManager fileExistsAtPath:consoleDumpFilePath]) {
+
+            NSError *attributesFetchError = nil;
+            NSDictionary *fileInformation = [fileManager attributesOfItemAtPath:consoleDumpFilePath
+                                                                          error:&attributesFetchError];
+            if (attributesFetchError == nil) {
+
+                unsigned long long consoleDumpFileSize = [(NSNumber *)[fileInformation valueForKey:NSFileSize] unsignedLongLongValue];
+
+
+                NSLog(@"PNLog: Current console dump file size is %lld bytes (maximum allowed: %d bytes)",
+                      consoleDumpFileSize, kPNLogMaximumLogFileSize);
+
+                if (consoleDumpFileSize > kPNLogMaximumLogFileSize) {
+
+                    NSError *oldLogDeleteError = nil;
+                    if ([fileManager fileExistsAtPath:oldConsoleDumpFilePath]) {
+
+                        [fileManager removeItemAtPath:oldConsoleDumpFilePath error:&oldLogDeleteError];
+                    }
+
+                    if (oldLogDeleteError == nil) {
+
+                        NSError *fileCopyError;
+                        [fileManager copyItemAtPath:consoleDumpFilePath toPath:oldConsoleDumpFilePath error:&fileCopyError];
+
+                        if (fileCopyError == nil) {
+
+                            if ([fileManager fileExistsAtPath:consoleDumpFilePath]) {
+
+                                NSError *currentLogDeleteError = nil;
+                                [fileManager removeItemAtPath:consoleDumpFilePath error:&currentLogDeleteError];
+
+                                if (currentLogDeleteError != nil) {
+
+                                    NSLog(@"PNLog: Can't remove current console dump log (%@) because of error: %@",
+                                          consoleDumpFilePath, currentLogDeleteError);
+                                }
+                            }
+                        }
+                        else {
+
+                            NSLog(@"PNLog: Can't copy current log (%@) to new location (%@) because of error: %@",
+                                  consoleDumpFilePath, oldConsoleDumpFilePath, fileCopyError);
+                        }
+                    }
+                    else {
+
+                        NSLog(@"PNLog: Can't remove old console dump log (%@) because of error: %@",
+                              oldConsoleDumpFilePath, oldLogDeleteError);
+                    }
+                }
+            }
         }
     }
 }
@@ -260,6 +365,7 @@ void PNLog(PNLogLevels level, id sender, ...) {
 static void PNDebugPrepare();
 void PNDebugPrepare() {
 
+    PNLogDumpFileTruncate();
     if (PNHTTPDumpOutputToFileEnabled()) {
 
         NSFileManager *fileManager = [NSFileManager defaultManager];

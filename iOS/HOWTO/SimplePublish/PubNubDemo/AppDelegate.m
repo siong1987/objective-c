@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 
-#import "ViewController.h"
+#import "ViewController.h"                                                   1
 
 @implementation AppDelegate
 
@@ -30,8 +30,6 @@
 }
 
 - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
-
-
     NSLog(@"************ DELEGATE: DID FAIL SENDING MESSAGE: %@", error);
 }
 

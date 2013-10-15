@@ -66,7 +66,7 @@
 
         PNLog(PNLogGeneralLevel, self, @"{BLOCK} PubNub client connected to: %@", origin);
 
-        // wait 1 second
+            // wait 1 second
         int64_t delayInSeconds = 1.0;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
 
@@ -74,19 +74,22 @@
             PNChannel *myChannel = [PNChannel channelWithName:@"a" shouldObservePresence:YES];
             NSString *myMessage = @"This is my message!";
 
-            NSLog(@"%@", @"**************** Starting 10s countdown NOW!");
+            for (int i = 1; i < 11; i++ ) {
 
-            double delayInSeconds = 8.0;
+                double delayInSeconds = i;
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+                dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+
+                    NSLog(@"Message Status: ************************************** %@ SECONDS!!! ***********************************************", [NSString stringWithFormat:@"%i", i]);
+
+                });
+
+            }
+
+
+
+            double delayInSeconds = 10.0;
             dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-            dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-
-                NSLog(@"Message Status: %@", @"************************************** 2 SECONDS!!! ***********************************************");
-
-            });
-
-
-            delayInSeconds = 10.0;
-            popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
 
                 [PubNub sendMessage:myMessage toChannel:[PNChannel channelWithName:@"zzzz"] withCompletionBlock:^(PNMessageState state, id message) {

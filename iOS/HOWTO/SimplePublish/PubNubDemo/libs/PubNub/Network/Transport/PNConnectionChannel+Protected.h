@@ -23,10 +23,18 @@
 
 - (void)processResponse:(PNResponse *)response forRequest:(PNBaseRequest *)request;
 
+- (void)handleRequestProcessingDidFail:(PNBaseRequest *)request withError:(PNError *)error;
+
+/**
+ * Simulate requests failure (used in case if connection terminated by user or because of network error
+ */
+- (void)makeScheduledRequestsFail:(NSArray *)requestsList withError:(PNError *)processingError;
+
 /**
  * Returns whether communication channel is waiting for request processing completion from backend or not
  */
 - (BOOL)isWaitingRequestCompletion:(NSString *)requestIdentifier;
+- (BOOL)shouldScheduleRequest:(PNBaseRequest *)request;
 
 /**
  * Clean up requests stack
@@ -70,6 +78,7 @@
  * Allow to check whether requests with specified class already placed into storage
  */
 - (BOOL)hasRequestsWithClass:(Class)requestClass;
+- (NSArray *)requestsWithClass:(Class)requestClass;
 
 /**
  * Closing connection to the server. Requests queue won't be flushed.
