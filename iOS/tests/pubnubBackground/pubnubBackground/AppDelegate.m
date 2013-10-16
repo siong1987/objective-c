@@ -165,10 +165,10 @@ const int noOfChannels =3;
 
                         PNChannel *ch = [PNChannel channelWithName:channel
                                              shouldObservePresence:NO];
-                        NSMutableString *messageToPublish = [NSString stringWithFormat:@""];
+                        NSString *messageToPublish = [NSString stringWithFormat:@""];
                         
                         if(!displayLogs){
-                            messageToPublish = [NSString stringWithFormat:@"\"Current location:  lat: %@, long: %@, address: %@\"", latitude, longitude, address];
+                            messageToPublish = [NSString stringWithFormat:@"Current location:  lat: %@, long: %@, address: %@", latitude, longitude, address];
                             [PubNub sendMessage:messageToPublish toChannel:ch];
                             id anObject = [self.dictMessageQueue objectForKey:channel];
                             [anObject enqueue:messageToPublish];
