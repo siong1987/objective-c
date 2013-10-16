@@ -328,7 +328,6 @@ const int noOfChannels =3;
     
     [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self
                                                          withBlock:^(PNMessage *message) {
-                                                             
                                                             @try {
                                                              id anObject = [self.dictMessageQueue objectForKey:message.channel.name];
                                                              
