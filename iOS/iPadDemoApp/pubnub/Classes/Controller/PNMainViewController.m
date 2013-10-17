@@ -550,7 +550,9 @@ static NSUInteger const inChatMessageLabelTag = 878;
 
             alertMessage = [NSString stringWithFormat:@"Failed to subscribe on: %@", channel.name];
         }
-
+		else {
+			[self enablePushNotificationsOnChannel: channel];
+		}
 
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Subscribe"
                                                             message:alertMessage
@@ -559,6 +561,22 @@ static NSUInteger const inChatMessageLabelTag = 878;
                                                   otherButtonTitles:nil];
         [alertView show];
    }];
+}
+
+-(void)enablePushNotificationsOnChannel:(PNChannel*)channel {
+	NSData *deviceToken = [[NSUserDefaults standardUserDefaults] objectForKey: @"deviceToken"];
+	[PubNub enablePushNotificationsOnChannel:channel withDevicePushToken: deviceToken andCompletionHandlingBlock: ^(NSArray *leavedChannels, PNError *error) {
+		NSLog(@"enablePushNotificationsOnChannel %@", error);
+		[PubNub requestPushNotificationEnabledChannelsForDevicePushToken:deviceToken withCompletionHandlingBlock:^(NSArray *channels, PNError *error){
+			NSLog(@"requestPushNotificationEnabledChannelsForDevicePushToken %@ %@", channels, error);
+			UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"requestPushNotificationEnabledChannelsForDevicePushToken"
+																message:[NSString stringWithFormat: @"%@", channels]
+															   delegate:nil
+													  cancelButtonTitle:@"OK"
+													  otherButtonTitles:nil];
+			[alertView show];
+		}];
+	}];
 }
 
 

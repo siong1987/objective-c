@@ -34,6 +34,22 @@
 
 @implementation PNAppDelegate
 
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSLog(@"My device token is: %@", deviceToken);
+
+    NSString *devToken = [[[[deviceToken description]
+                            stringByReplacingOccurrencesOfString:@"<"withString:@""]
+                           stringByReplacingOccurrencesOfString:@">" withString:@""]
+                          stringByReplacingOccurrencesOfString: @" " withString: @""];
+
+	[[NSUserDefaults standardUserDefaults] setObject: devToken forKey: @"devToken"];
+	[[NSUserDefaults standardUserDefaults] setObject: deviceToken forKey: @"deviceToken"];
+	[[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error NS_AVAILABLE_IOS(3_0) {
+	NSLog(@"didFailToRegisterForRemoteNotificationsWithError %@", error);
+}
 
 #pragma mark - Instance methods
 
@@ -125,10 +141,38 @@
     
     [self initializePubNubClient];
 
-    
+#if !TARGET_IPHONE_SIMULATOR
+	if( [[NSUserDefaults standardUserDefaults] objectForKey: @"deviceToken"] == nil ||
+	   [[NSUserDefaults standardUserDefaults] objectForKey: @"devToken"] == nil )
+	[[UIApplication sharedApplication] registerForRemoteNotificationTypes:
+     (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+#endif
+
+	NSDictionary *remoteNotif = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+	if(remoteNotif)
+	{
+		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"didReceiveRemoteNotification"
+															message:[NSString stringWithFormat: @"%@", remoteNotif]
+														   delegate:nil
+												  cancelButtonTitle:@"OK"
+												  otherButtonTitles:nil];
+		[alertView show];
+	}
+
     return YES;
 }
 
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+	NSLog(@"didReceiveRemoteNotification %@", userInfo);
+
+	UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"didReceiveRemoteNotification"
+														message:[NSString stringWithFormat: @"%@", userInfo]
+													   delegate:nil
+											  cancelButtonTitle:@"OK"
+											  otherButtonTitles:nil];
+	[alertView show];
+}
 
 #pragma mark - PubNub client delegate methods
 
