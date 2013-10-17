@@ -37,8 +37,8 @@
 #pragma mark Static
 
 static NSString * const kPNLibraryVersion = @"3.5.1";
-static NSString * const kPNCodebaseBranch = @"hotfix-t179";
-static NSString * const kPNCodeCommitIdentifier = @"9642583e87d116ea10acb09310ecf2d5ff88045b";
+static NSString * const kPNCodebaseBranch = @"hotfix-t180";
+static NSString * const kPNCodeCommitIdentifier = @"e9605fbb3b1a547b74269f129cfebc7b55643a9d";
 
 
 // Stores reference on singleton PubNub instance
@@ -1483,7 +1483,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
         
         // Check whether client is able to send request or not
         NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];
-        if (statusCode == 0 && pushToken != nil) {
+        if (statusCode == 0) {
 
             PNLog(PNLogGeneralLevel, [self sharedInstance], @"DISABLE PUSH NOTIFICATIONS ON CHANNELS: %@ (STATE: %@)",
                   channels, [self humanReadableStateFrom:[self sharedInstance].state]);
@@ -1504,11 +1504,6 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
             PNLog(PNLogGeneralLevel, [self sharedInstance], @"CAN'T DISABLE PUSH NOTIFICATIONS FOR CHANNELS: %@ "
                     "(STATE: %@)", channels, [self humanReadableStateFrom:[self sharedInstance].state]);
-
-            if (pushToken == nil) {
-
-                statusCode = kPNDevicePushTokenIsEmptyError;
-            }
             
             PNError *stateChangeError = [PNError errorWithCode:statusCode];
             stateChangeError.associatedObject = channels;
@@ -1555,7 +1550,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
         
         // Check whether client is able to send request or not
         NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];
-        if (statusCode == 0 && pushToken != nil) {
+        if (statusCode == 0) {
 
             PNLog(PNLogGeneralLevel, [self sharedInstance], @"DISABLE PUSH NOTIFICATIONS FROM ALL CHANNELS (STATE: %@)",
                   [self humanReadableStateFrom:[self sharedInstance].state]);
@@ -1573,11 +1568,6 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
             PNLog(PNLogGeneralLevel, [self sharedInstance], @"CAN'T DISABLE PUSH NOTIFICATIONS FROM ALL CHANNELS "
                     "(STATE: %@)", [self humanReadableStateFrom:[self sharedInstance].state]);
-
-            if (pushToken == nil) {
-
-                statusCode = kPNDevicePushTokenIsEmptyError;
-            }
             
             PNError *removalError = [PNError errorWithCode:statusCode];
             [[self sharedInstance] notifyDelegateAboutPushNotificationsRemoveFailedWithError:removalError];
@@ -1622,7 +1612,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
         
         // Check whether client is able to send request or not
         NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];
-        if (statusCode == 0 && pushToken != nil) {
+        if (statusCode == 0) {
 
             PNLog(PNLogGeneralLevel, [self sharedInstance], @"FETCH PUSH NOTIFICATION ENABLED CHANNELS (STATE: %@)",
                   [self humanReadableStateFrom:[self sharedInstance].state]);
@@ -1640,11 +1630,6 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
             PNLog(PNLogGeneralLevel, [self sharedInstance], @"CAN'T FETCH PUSH NOTIFICATION ENABLED CHANNELS (STATE: %@)",
                   [self humanReadableStateFrom:[self sharedInstance].state]);
-            
-            if (pushToken == nil) {
-
-                statusCode = kPNDevicePushTokenIsEmptyError;
-            }
             
             PNError *listRetrieveError = [PNError errorWithCode:statusCode];
             
