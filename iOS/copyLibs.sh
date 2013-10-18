@@ -16,3 +16,5 @@ cp -r iPadDemoApp/pubnub/libs/PubNub/* tests/pubnubBackground/pubnubBackground/l
 
 cp -r iPadDemoApp/pubnub/libs/PubNub/* tests/Subscription/pubnubBackground/libs/PubNub
 
+cp -r iPadDemoApp/pubnub/libs/PubNub/* tests/PubNubTestBackgroundTime/pubnub/libs/PubNub
+
