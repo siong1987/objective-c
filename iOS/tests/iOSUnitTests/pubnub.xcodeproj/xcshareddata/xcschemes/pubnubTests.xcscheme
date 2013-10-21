@@ -21,6 +21,11 @@
                BlueprintName = "pubnubTests"
                ReferencedContainer = "container:pubnub.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "TimeOutTest">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
