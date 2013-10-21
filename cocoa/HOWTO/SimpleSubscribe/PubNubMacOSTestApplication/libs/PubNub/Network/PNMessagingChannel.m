@@ -685,6 +685,10 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             [self destroyByRequestClass:[PNLeaveRequest class]];
             [self destroyByRequestClass:[PNSubscribeRequest class]];
 
+            if ([[channels lastObject] isTimeTokenChangeLocked]) {
+
+                [channels makeObjectsPerformSelector:@selector(unlockTimeTokenChange)];
+            }
             PNSubscribeRequest *subscribeRequest = [PNSubscribeRequest subscribeRequestForChannels:channels byUserRequest:YES];
             if (shouldModifyPresence) {
 
@@ -948,6 +952,14 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             subscribeRequest.closeConnection = NO;
         }
 
+        if ([[subscriptionChannels lastObject] isTimeTokenChangeLocked] && ![subscribeRequest isInitialSubscription]) {
+
+            PNBitOn(&_messagingState, PNMessagingChannelSubscriptionTimeTokenRetrieve);
+            PNBitOff(&_messagingState, PNMessagingChannelSubscriptionWaitingForEvents);
+
+            [subscribeRequest resetTimeToken];
+        }
+
         [self scheduleRequest:subscribeRequest
       shouldObserveProcessing:PNBitIsOn(self.messagingState, PNMessagingChannelSubscriptionTimeTokenRetrieve)];
     }
@@ -1205,8 +1217,9 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
 
 
         // Update channels state update time token
-        [self.subscribedChannelsSet makeObjectsPerformSelector:@selector(setUpdateTimeToken:) withObject:timeToken];
-        [request.channels makeObjectsPerformSelector:@selector(setUpdateTimeToken:) withObject:timeToken];
+        NSMutableArray *channelsForTokenUpdate = [NSMutableArray arrayWithArray:[self.subscribedChannelsSet allObjects]];
+        [channelsForTokenUpdate addObjectsFromArray:request.channels];
+        [channelsForTokenUpdate makeObjectsPerformSelector:@selector(setUpdateTimeToken:) withObject:timeToken];
 
         NSUInteger presenceModificationType = 0;
         if ([self.subscribedChannelsSet count] == 0 &&
