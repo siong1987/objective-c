@@ -143,18 +143,18 @@
 
 
 	// Handle message processing events
-	[notificationCenter addObserver:self
-						   selector:@selector(handleClientMessageProcessingStateChange:)
-							   name:kPNClientWillSendMessageNotification
-							 object:nil];
-	[notificationCenter addObserver:self
-						   selector:@selector(handleClientMessageProcessingStateChange:)
-							   name:kPNClientDidSendMessageNotification
-							 object:nil];
-	[notificationCenter addObserver:self
-						   selector:@selector(handleClientMessageProcessingStateChange:)
-							   name:kPNClientMessageSendingDidFailNotification
-							 object:nil];
+//	[notificationCenter addObserver:self
+//						   selector:@selector(handleClientMessageProcessingStateChange:)
+//							   name:kPNClientWillSendMessageNotification
+//							 object:nil];
+//	[notificationCenter addObserver:self
+//						   selector:@selector(handleClientMessageProcessingStateChange:)
+//							   name:kPNClientDidSendMessageNotification
+//							 object:nil];
+//	[notificationCenter addObserver:self
+//						   selector:@selector(handleClientMessageProcessingStateChange:)
+//							   name:kPNClientMessageSendingDidFailNotification
+//							 object:nil];
 
 	// Handle messages/presence event arrival
 	[notificationCenter addObserver:self
