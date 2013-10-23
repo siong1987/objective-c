@@ -146,15 +146,15 @@
 		
 		[PubNub requestParticipantsListForChannel:pnChannels[i]
 							  withCompletionBlock:^(NSArray *udids, PNChannel *channel, PNError *error)
-		 {
-			 isCompletionBlockCalled = YES;
-			 NSTimeInterval interval = -[start timeIntervalSinceNow];
-		     PNLog(PNLogGeneralLevel, self, @"test30ParticipantsListForChannelTimeout %f", interval);
+		{
+			isCompletionBlockCalled = YES;
+			NSTimeInterval interval = -[start timeIntervalSinceNow];
+		    PNLog(PNLogGeneralLevel, self, @"test30ParticipantsListForChannelTimeout %f", interval);
 
-			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 2, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
-			 STAssertNotNil( error, @"requestParticipantsList error must be not nil");
-		 }];
-		for( int j=0; j<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+1 &&
+			STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 2, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
+			STAssertNotNil( error, @"requestParticipantsList error must be not nil");
+		}];
+		for( int j=0; j<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+10 &&
 			isCompletionBlockCalled == NO && notificationParticipantsListCalled == NO; j++ )
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 		STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
@@ -251,22 +251,34 @@
 	{
 		[self resetConnection];
 
-		SwizzleReceipt *receipt = [self setFakeReadStreamContent];
+		__block BOOL isCompletionBlockCalled = NO;
+		[PubNub subscribeOnChannels: @[pnChannels[i]]
+		withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *channels, PNError *subscriptionError)
+		 {
+			 isCompletionBlockCalled = YES;
+		 }];
+		for( int i=0; i<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
+			isCompletionBlockCalled == NO; i++ )
+			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 
+
+		isCompletionBlockCalled = NO;
 		notificationFailMessageSendCalled = NO;
 
 		__block NSDate *start = [NSDate date];
-		__block BOOL isCompletionBlockCalled = NO;
 
 		[PubNub sendMessage:@"Hello PubNub" toChannel:pnChannels[i]
 									  withCompletionBlock:^(PNMessageState messageSendingState, id data) {
+			if( messageSendingState == PNMessageSending)
+				return;
 			 isCompletionBlockCalled = YES;
 			 NSTimeInterval interval = -[start timeIntervalSinceNow];
 		     PNLog(PNLogGeneralLevel, self, @"test50SendMessageTimeout %f", interval);
 			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
 			 STAssertFalse(messageSendingState==PNMessageSent, @"messageSendingState==PNMessageSent %@", data);
 		 }];
-		for( int j=0; j<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+1 &&
+		SwizzleReceipt *receipt = [self setFakeReadStreamContent];
+		for( int j=0; j<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+10 &&
 			isCompletionBlockCalled == NO && notificationFailMessageSendCalled == NO; j++ )
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 		STAssertTrue(isCompletionBlockCalled, @"Completion block not called");

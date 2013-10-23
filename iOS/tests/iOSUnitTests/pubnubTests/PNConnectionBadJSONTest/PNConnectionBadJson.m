@@ -151,8 +151,11 @@ void PNCFRelease(CF_RELEASES_ARGUMENT void *CFObject) {
 			CFReadStreamClose( (CFReadStreamRef)[self performSelector:@selector(socketReadStream)]);
         CFIndex readedBytesCount = CFReadStreamRead( (CFReadStreamRef)[self performSelector:@selector(socketReadStream)], buffer, kPNStreamBufferSize);
 
-		if( [self isNeedReturnAfterRead] == YES )
-			return;
+		if( [self isNeedReturnAfterRead] == YES ) {
+			for( int j=0; j<60; j++ )
+				[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
+//			return;
+		}
 
 //		NSData *data = [NSData dataWithBytes: buffer length: readedBytesCount];
 //		[data writeToFile: [NSString stringWithFormat: @"/Users/tuller/data/%ld.txt", readedBytesCount] atomically: YES];

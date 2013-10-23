@@ -23,9 +23,6 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "TimeOutTest">
-               </Test>
-               <Test
                   Identifier = "ChangingChannels">
                </Test>
             </SkippedTests>
