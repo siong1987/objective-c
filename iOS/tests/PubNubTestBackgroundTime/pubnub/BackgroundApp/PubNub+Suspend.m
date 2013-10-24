@@ -24,7 +24,7 @@
     //
 }
 
-- (void)connectionChannelDidResume:(PNConnectionChannel *)channel {
+- (void)connectionChannelDidResume1:(PNConnectionChannel *)channel {
 
     [self warmUpConnection:channel];
 
@@ -50,8 +50,6 @@
 			[delegate performSelector: @selector(errorSelector) withObject: nil];
 	}
 }
-//13821224170640276
-//13821224711602366
-//13821225054203348
+
 
 @end

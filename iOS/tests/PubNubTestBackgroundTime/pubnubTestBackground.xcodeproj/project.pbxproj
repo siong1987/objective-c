@@ -74,6 +74,7 @@
 		5AC38A8817F1C0E000956E69 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 79C32285166DFA56006DB535 /* InfoPlist.strings */; };
 		5AC38AA517F1C18E00956E69 /* PNBackgroundAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AC38AA417F1C18E00956E69 /* PNBackgroundAppDelegate.m */; };
 		5AC38AAA17F1C20100956E69 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AC38AA817F1C20100956E69 /* main.m */; };
+		5AE322661819B4DB004FB6FB /* PNRequestsQueue+TimeToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AE322651819B4DB004FB6FB /* PNRequestsQueue+TimeToken.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,8 @@
 		5AC38AA417F1C18E00956E69 /* PNBackgroundAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PNBackgroundAppDelegate.m; path = BackgroundApp/PNBackgroundAppDelegate.m; sourceTree = "<group>"; };
 		5AC38AA817F1C20100956E69 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = BackgroundApp/main.m; sourceTree = "<group>"; };
 		5ACCA9D617F342F000FE90CF /* pubNubBackgroundMediator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = pubNubBackgroundMediator.xcodeproj; path = pubNubBackgroundMediator/pubNubBackgroundMediator.xcodeproj; sourceTree = "<group>"; };
+		5AE322641819B4DB004FB6FB /* PNRequestsQueue+TimeToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "PNRequestsQueue+TimeToken.h"; path = "BackgroundApp/PNRequestsQueue+TimeToken.h"; sourceTree = "<group>"; };
+		5AE322651819B4DB004FB6FB /* PNRequestsQueue+TimeToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "PNRequestsQueue+TimeToken.m"; path = "BackgroundApp/PNRequestsQueue+TimeToken.m"; sourceTree = "<group>"; };
 		7902452A167B5F6100E36546 /* PNWriteBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNWriteBuffer.h; sourceTree = "<group>"; };
 		7902452B167B5F6100E36546 /* PNWriteBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNWriteBuffer.m; sourceTree = "<group>"; };
 		7902452E167B69FF00E36546 /* PNBaseRequest+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PNBaseRequest+Protected.h"; sourceTree = "<group>"; };
@@ -463,6 +466,8 @@
 				5AC38AA417F1C18E00956E69 /* PNBackgroundAppDelegate.m */,
 				5A15AA2F1811967200A911DC /* PubNub+Suspend.h */,
 				5A15AA301811967200A911DC /* PubNub+Suspend.m */,
+				5AE322641819B4DB004FB6FB /* PNRequestsQueue+TimeToken.h */,
+				5AE322651819B4DB004FB6FB /* PNRequestsQueue+TimeToken.m */,
 				79C32281166DFA50006DB535 /* libs */,
 				79C32283166DFA56006DB535 /* Resources */,
 				79C32233166DF847006DB535 /* Supporting Files */,
@@ -727,6 +732,7 @@
 				5AC38A3F17F1C0E000956E69 /* PubNub.m in Sources */,
 				5AC38A4017F1C0E000956E69 /* PNConfiguration.m in Sources */,
 				5AC38A4117F1C0E000956E69 /* PNError.m in Sources */,
+				5AE322661819B4DB004FB6FB /* PNRequestsQueue+TimeToken.m in Sources */,
 				5AC38A4217F1C0E000956E69 /* PNJSONSerialization.m in Sources */,
 				5AC38A4317F1C0E000956E69 /* JSONKit.m in Sources */,
 				5AC38A4417F1C0E000956E69 /* JSON.m in Sources */,
