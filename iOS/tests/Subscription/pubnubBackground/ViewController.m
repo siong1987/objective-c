@@ -144,18 +144,33 @@ AppDelegate *appDelegate;
 	[self.textViewLogs scrollRangeToVisible:NSMakeRange([self.textViewLogs.text length], 0)];
 
 	[PubNub subscribeOnChannels: @[pnChannel]
-	withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *channels, PNError *subscriptionError)
-	 {
+	withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *channels, PNError *subscriptionError) {
 		 isCompletionBlockCalled = YES;
-		 NSString *eventString = [NSString stringWithFormat:@"subscribed %@ %@", (subscriptionError!=nil) ? @"ERROR" : @"",
-								  (subscriptionError!=nil) ? subscriptionError : @""];
-		 [self.textViewLogs setText:[NSString stringWithFormat:@"%@\n%@:%@", self.textViewLogs.text,[NSDate date], eventString]];
-		 [self.textViewLogs scrollRangeToVisible:NSMakeRange([self.textViewLogs.text length], 0)];
 
-//		 if( subscriptionError == nil ) {
-//		 [self performSelector: @selector(checkChannelWithName:) withObject: @"asads" afterDelay: 2.0];
-//		 [self checkChannelWithName: @"asdfadsfad"];
-		 [self unsubscribeFromChannels: pnChannel];
+		if( subscriptionError == nil ) {
+			BOOL isSubscribed = NO;
+			for( int j=0; j<channels.count; j++ ) {
+				if( [[channels[j] name] isEqualToString: name] == YES ) {
+					isSubscribed = YES;
+					break;
+				}
+			}
+			if( isSubscribed == NO ) {
+				NSString *eventString = [NSString stringWithFormat:@"      not subscribed %@", name];
+				[self.textViewLogs setText:[NSString stringWithFormat:@"%@\n%@:%@", self.textViewLogs.text,[NSDate date], eventString]];
+				[self.textViewLogs scrollRangeToVisible:NSMakeRange([self.textViewLogs.text length], 0)];
+			}
+		}
+
+		NSString *eventString = [NSString stringWithFormat:@"subscribed %@ %@", (subscriptionError!=nil) ? @"ERROR" : @"",
+								  (subscriptionError!=nil) ? subscriptionError : @""];
+		[self.textViewLogs setText:[NSString stringWithFormat:@"%@\n%@:%@", self.textViewLogs.text,[NSDate date], eventString]];
+		[self.textViewLogs scrollRangeToVisible:NSMakeRange([self.textViewLogs.text length], 0)];
+
+//		if( subscriptionError == nil ) {
+//		[self performSelector: @selector(checkChannelWithName:) withObject: @"asads" afterDelay: 2.0];
+//		[self checkChannelWithName: @"asdfadsfad"];
+		[self unsubscribeFromChannels: pnChannel];
 	 }];
     // Run loop
 	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, ([PNConfiguration defaultConfiguration].subscriptionRequestTimeout + 1)* NSEC_PER_SEC);
