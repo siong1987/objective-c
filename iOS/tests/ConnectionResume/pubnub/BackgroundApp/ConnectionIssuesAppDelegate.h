@@ -19,13 +19,18 @@
 	int messageSendingDidFailNotificationCount;
 	int didSendMessageDelegateCount;
 	int didReceiveMessageCount;
+
+	int clientDidDisconnectFromOriginNotificationCount;
+	int clientConnectionDidFailWithErrorNotificationCount;
+	int didDisconnectFromOriginCountWithError;
+	int willDisconnectWithError;
 }
 
 @property (nonatomic, strong) UIWindow *window;
 @property NSNumber *resetTimeTokenCount;
 @property NSString *lastTimeToken;
 
--(void)startTest;
+
 -(void)addMessagetoLog:(NSString*)message;
 
 @end

@@ -21,26 +21,26 @@
 
 	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 	[notificationCenter addObserver:self
-						   selector:@selector(handleClientDidConnectToOriginNotification:)
+						   selector:@selector(kPNClientDidConnectToOriginNotification:)
 							   name:kPNClientDidConnectToOriginNotification
 							 object:nil];
 
 	[notificationCenter addObserver:self
-						   selector:@selector(handleClientDidDisconnectToOriginNotification:)
+						   selector:@selector(kPNClientDidDisconnectFromOriginNotification:)
 							   name:kPNClientDidDisconnectFromOriginNotification
 							 object:nil];
 	[notificationCenter addObserver:self
-						   selector:@selector(handleClientDidDisconnectToOriginNotification:)
+						   selector:@selector(kPNClientConnectionDidFailWithErrorNotification:)
 							   name:kPNClientConnectionDidFailWithErrorNotification
 							 object:nil];
 
 	[notificationCenter addObserver:self
-						   selector:@selector(handleClientSubscriptionProcess:)
+						   selector:@selector(kPNClientSubscriptionDidRestoreNotification:)
 							   name:kPNClientSubscriptionDidRestoreNotification
 							 object:nil];
 
 	[notificationCenter addObserver:self
-						   selector:@selector(subscriptionWillRestoreNotification:)
+						   selector:@selector(kPNClientSubscriptionWillRestoreNotification:)
 							   name:kPNClientSubscriptionWillRestoreNotification
 							 object:nil];
 
@@ -90,7 +90,7 @@
 
 	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 	[notificationCenter addObserver:self
-						   selector:@selector(handleClientSubscriptionProcess:)
+						   selector:@selector(kPNClientSubscriptionDidFailNotification:)
 							   name:kPNClientSubscriptionDidFailNotification
 							 object:nil];
 	[notificationCenter addObserver:self
@@ -201,6 +201,23 @@
 }
 
 -(void)wifiOff {
+	[self addMessagetoLog: @"wifiOff"];
+	clientConnectionDidFailWithErrorNotificationCount = 0;
+	didDisconnectFromOriginCountWithError = 0;
+	willDisconnectWithError = 0;
+	int64_t delayInSeconds = 20;
+	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+	dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+		[self addMessagetoLog: [NSString stringWithFormat: @"clientConnectionDidFailWithErrorNotificationCount %d", clientConnectionDidFailWithErrorNotificationCount]];
+		[self addMessagetoLog: [NSString stringWithFormat: @"willDisconnectWithError %d", willDisconnectWithError]];
+		[self addMessagetoLog: [NSString stringWithFormat: @"didDisconnectFromOriginCountWithError %d", didDisconnectFromOriginCountWithError]];
+		if( clientConnectionDidFailWithErrorNotificationCount == 0 )
+			[self performSelector: @selector(errorSelectorClientConnectionDidFailWithErrorNotificationCount)];
+		if( didDisconnectFromOriginCountWithError == 0 )
+			[self performSelector: @selector(errorSelectorDidDisconnectFromOriginCountWithError)];
+		if( willDisconnectWithError == 0 )
+			[self performSelector: @selector(errorSelectorWillDisconnectWithError)];
+	});
 	NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:wiFiOnUrl]
 											 cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0];
     NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
@@ -210,63 +227,38 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	NSLog(@"connection didReceiveResponse");
-    // A response has been received, this is where we initialize the instance var you created
-    // so that we can append data to it in the didReceiveData method
-    // Furthermore, this method is called each time there is a redirect so reinitializing it
-    // also serves to clear it
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    // Append the new data to the instance variable you declared
 	NSLog(@"connection didReceiveData");
 }
 
 - (NSCachedURLResponse *)connection:(NSURLConnection *)connection
                   willCacheResponse:(NSCachedURLResponse*)cachedResponse {
 	NSLog(@"connection willCacheResponse");
-    // Return nil to indicate not necessary to store a cached response for this connection
     return nil;
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	NSLog(@"connection connectionDidFinishLoading");
-    // The request is complete and data has been received
-    // You can parse the stuff in your instance variable now
-
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	NSLog(@"connection didFailWithError %@", error);
-    // The request has failed for some reason!
-    // Check the error var
 }
 
-- (void)handleClientDidConnectToOriginNotification:(NSNotification *)notification {
-	[self addMessagetoLog: [NSString stringWithFormat: @"handleClientDidConnectToOriginNotification: %@", notification]];
-//	SwizzleReceipt *receipt = [self setResetTimeToken];
-//	log.text = [log.text stringByAppendingFormat:@"%@ Connected (%2.2f sec). Start reconnect\n", [NSDate date], -[lastWiFiReconnect timeIntervalSinceNow]];
-////	[self wifiOff];
-//	[self wifiOn];
-//	log.text = [log.text stringByAppendingFormat:@"%@ reconnected wifi\n", [NSDate date]];
-//	lastWiFiReconnect = [NSDate dateWithTimeIntervalSinceNow: 20];
-//	NSRange range = NSMakeRange(log.text.length - 1, 1);
-//	[log scrollRangeToVisible:range];
+- (void)kPNClientDidConnectToOriginNotification:(NSNotification *)notification {
+	[self addMessagetoLog: [NSString stringWithFormat: @"kPNClientDidConnectToOriginNotification: %@", notification]];
+
 	connectionCount++;
 	[self addMessagetoLog: [NSString stringWithFormat: @"connectionCount %d", connectionCount]];
 	self.lastTimeToken = nil;
 	if( connectionCount == 1 )
 		[self subscribeOnChannels];
 	if( connectionCount == 2 ) {
-//		self.resetTimeTokenCount = [NSNumber numberWithInt: 0];
-
 		int64_t delayInSeconds = 20;
 		dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
 		dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-			int count = [self.resetTimeTokenCount intValue];
-			[self addMessagetoLog: [NSString stringWithFormat: @"resetTimeTokenCount %d", count]];
-//			if( count == 0 )
-//				[self performSelector: @selector(errorSelectorResetTimeTokenCount)];
-//			[Swizzler unswizzleFromReceipt:receipt];
 			[self wifiOff];
 		});
 	}
@@ -279,9 +271,27 @@
 	}
 }
 
-- (void)handleClientDidDisconnectToOriginNotification:(NSNotification *)notification {
-	PNLog(PNLogGeneralLevel, nil, @"handleClientDidDisconnectToOriginNotification: %@", notification);
+- (void)pubnubClient:(PubNub *)client willDisconnectWithError:(PNError *)error {
+	[self addMessagetoLog: @"willDisconnectWithError"];
+	willDisconnectWithError++;
+}
+
+- (void)pubnubClient:(PubNub *)client didDisconnectFromOrigin:(NSString *)origin withError:(PNError *)error {
+	[self addMessagetoLog: @"didDisconnectFromOrigin withError"];
+	didDisconnectFromOriginCountWithError++;
+}
+
+
+- (void)kPNClientDidDisconnectFromOriginNotification:(NSNotification *)notification {
+	PNLog(PNLogGeneralLevel, nil, @"kPNClientDidDisconnectFromOriginNotification: %@", notification);
 	[self addMessagetoLog: notification.name];
+	clientDidDisconnectFromOriginNotificationCount++;
+}
+
+- (void)kPNClientConnectionDidFailWithErrorNotification:(NSNotification *)notification {
+	PNLog(PNLogGeneralLevel, nil, @"kPNClientConnectionDidFailWithErrorNotification: %@", notification);
+	[self addMessagetoLog: notification.name];
+	clientConnectionDidFailWithErrorNotificationCount++;
 }
 
 
@@ -309,7 +319,7 @@
 
 -(void)sendMessages
 {
-	NSLog(@"sendMessages");
+	[self addMessagetoLog:@"sendMessages"];
 	for( int i=0; i<pnChannels.count; i++ )
 	{
 		[PubNub sendMessage: [NSString stringWithFormat: @"Hello PubNub, %@", [NSDate date]]
@@ -319,24 +329,11 @@
 										   [self addMessagetoLog: [NSString stringWithFormat: @"send message, state %d", messageSendingState]];
 									   }];
 	}
-	[self startTest];
-}
-
--(void)startTest {
 	int64_t delayInSeconds = 15;
 	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
 	dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-		[self addMessagetoLog: @"turning off WifI"];
 		[self wifiOff];
 	});
-
-//	delayInSeconds = 30;
-//	popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-//	dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-//		[self sendMessagesForFail];
-//		[self requestHistoryForChannelFail];
-//		[self requestServerTimeTokenWithCompletionBlock];
-//	});
 }
 
 -(void)sendMessagesForFail
@@ -365,7 +362,6 @@
 		if( didReceiveMessageCount > 0 )
 			[self performSelector: @selector(errorSelectorDidReceiveMessage)];
 
-		[self addMessagetoLog: @"turning off WifI"];
 		[self wifiOff];
 	});
 }
@@ -375,7 +371,7 @@
 	NSTimeInterval interval = -[startSendMessage timeIntervalSinceNow];
 	[self addMessagetoLog: [NSString stringWithFormat: @"kPNClientMessageSendingDidFailNotification, interval %f", interval]];
 	if( interval > delta )
-		[self performSelector: @selector(errorSelector)];
+		[self performSelector: @selector(errorSelectorClientMessageSendingDidFailNotification)];
 	startSendMessage = [NSDate date];
 }
 
@@ -394,7 +390,7 @@
 	 {
 		 NSTimeInterval interval = -[start timeIntervalSinceNow];
 		 if( interval > delta )
-			 [self performSelector: @selector(errorSelector)];
+			 [self performSelector: @selector(errorSelectorHistoryForChannel)];
 		 [self addMessagetoLog: [NSString stringWithFormat: @"history channel fail, error %@, interval %f", error, interval]];
 	 }];
 }
@@ -441,38 +437,16 @@
 	[self addMessagetoLog: [NSString stringWithFormat: @"kPNClientDidFailTimeTokenReceiveNotification, interval %f", interval]];
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-- (void)handleClientSubscriptionProcess:(NSNotification *)notification {
-    NSArray *channels = nil;
-//    PNError *error = nil;
-    PNSubscriptionProcessState state = PNSubscriptionProcessNotSubscribedState;
-
-    // Check whether arrived notification that subscription failed or not
-    if ([notification.name isEqualToString:kPNClientSubscriptionDidFailNotification] ||
-        [notification.name isEqualToString:kPNClientSubscriptionDidFailOnClientIdentifierUpdateNotification]) {
-    }
-    else {
-
-        // Retrieve list of channels on which event is occurred
-        channels = (NSArray *)notification.userInfo;
-        state = PNSubscriptionProcessSubscribedState;
-
-        // Check whether arrived notification that subscription will be restored
-        if ([notification.name isEqualToString:kPNClientSubscriptionWillRestoreNotification]) {
-
-            state = PNSubscriptionProcessWillRestoreState;
-        }
-        // Check whether arrived notification that subscription restored
-        else if ([notification.name isEqualToString:kPNClientSubscriptionDidRestoreNotification]) {
-
-            state = PNSubscriptionProcessRestoredState;
-			[self startTest];
-        }
-    }
+-(void)kPNClientSubscriptionDidFailNotification:(NSNotification *)notification {
+	[self addMessagetoLog: @"kPNClientSubscriptionDidFailNotification"];
 }
 
--(void)subscriptionWillRestoreNotification:(NSNotification *)notification {
-//	[self startTest];
+- (void)kPNClientSubscriptionDidRestoreNotification:(NSNotification *)notification {
+	[self addMessagetoLog: @"kPNClientSubscriptionDidRestoreNotification"];
+}
+
+-(void)kPNClientSubscriptionWillRestoreNotification:(NSNotification *)notification {
+	[self addMessagetoLog: @"kPNClientSubscriptionWillRestoreNotification"];
 }
 
 - (NSNumber *)shouldResubscribeOnConnectionRestore {
@@ -489,8 +463,7 @@
 }
 
 -(void)pubnubClient:(PubNub *)client didConnectToOrigin:(NSString *)origin {
-	NSLog(@"- (void)pubnubClient:(PubNub *)client didConnectToOrigin:(NSString *)origin");
-//	[self startTest];
+	[self addMessagetoLog:@"- (void)pubnubClient:(PubNub *)client didConnectToOrigin:(NSString *)origin"];
 }
 
 - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
@@ -510,5 +483,8 @@
 		[self performSelector: @selector(errorSelectorDidReceiveMessage)];
 }
 
+-(IBAction)btnClearClick:(id)sender {
+	log.text = @"";
+}
 
 @end

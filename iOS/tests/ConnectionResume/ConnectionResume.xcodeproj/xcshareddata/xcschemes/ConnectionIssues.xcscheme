@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5AC38A3A17F1C0E000956E69"
                BuildableName = "ConnectionIssues.app"
-               BlueprintName = "ConnectionIssuesBackground"
-               ReferencedContainer = "container:ConnectionIssues.xcodeproj">
+               BlueprintName = "ConnectionResumeBackground"
+               ReferencedContainer = "container:ConnectionResume.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,8 +34,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5AC38A3A17F1C0E000956E69"
             BuildableName = "ConnectionIssues.app"
-            BlueprintName = "ConnectionIssuesBackground"
-            ReferencedContainer = "container:ConnectionIssues.xcodeproj">
+            BlueprintName = "ConnectionResumeBackground"
+            ReferencedContainer = "container:ConnectionResume.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -53,8 +53,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5AC38A3A17F1C0E000956E69"
             BuildableName = "ConnectionIssues.app"
-            BlueprintName = "ConnectionIssuesBackground"
-            ReferencedContainer = "container:ConnectionIssues.xcodeproj">
+            BlueprintName = "ConnectionResumeBackground"
+            ReferencedContainer = "container:ConnectionResume.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -71,8 +71,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5AC38A3A17F1C0E000956E69"
             BuildableName = "ConnectionIssues.app"
-            BlueprintName = "ConnectionIssuesBackground"
-            ReferencedContainer = "container:ConnectionIssues.xcodeproj">
+            BlueprintName = "ConnectionResumeBackground"
+            ReferencedContainer = "container:ConnectionResume.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
