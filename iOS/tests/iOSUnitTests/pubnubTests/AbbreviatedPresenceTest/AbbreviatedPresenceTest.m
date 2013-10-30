@@ -47,7 +47,7 @@
 
 	[PubNub setDelegate:self];
 	PNConfiguration *configuration = [PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"pub-c-6887e7f3-aec8-4470-b9a0-e68567c7bd71" subscribeKey:@"sub-c-2d4a4646-0e77-11e3-9bef-02ee2ddab7fe" secretKey: @"sec-c-ZjRmZmQzMmYtMDMxMC00NDU1LTliOTUtZmM1ODNlZWM3ZGVm" cipherKey: nil];
-	[PubNub setConfiguration: [PNConfiguration defaultConfiguration]];
+	[PubNub setConfiguration: configuration];
 
 	[PubNub connectWithSuccessBlock:^(NSString *origin) {
 

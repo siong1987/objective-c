@@ -2254,7 +2254,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
     PNLog(PNLogGeneralLevel, [self sharedInstance], @"TRYING TO REQUEST PARTICIPANTS LIST FOR CHANNEL: %@ (STATE: %@)",
           channel, [self humanReadableStateFrom:[self sharedInstance].state]);
     
-    [self performAsyncLockingBlock:^{
+    [self performAsyncLockingBlock:^{ 
         
         // Check whether client is able to send request or not
         NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];

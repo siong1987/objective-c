@@ -890,7 +890,7 @@
 
 - (void)test60SubscribeOnChannelsByTurns
 {
-	for( int i = 0; i<110; i++ )
+	for( int i = 0; i<20; i++ )
 	{
 //		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 		__block BOOL isCompletionBlockCalled = NO;

@@ -240,4 +240,18 @@ void PNCFRelease(CF_RELEASES_ARGUMENT void *CFObject) {
     }
 }
 
+void fakeReadStreamCallback(CFReadStreamRef stream, CFStreamEventType type, void *clientCallBackInfo) {
+}
+
+- (void)configureFakeReadStream {
+	CFReadStreamRef readStream = (__bridge CFReadStreamRef)([self performSelector: @selector(socketReadStream)]);
+
+    CFOptionFlags options = (kCFStreamEventOpenCompleted | kCFStreamEventHasBytesAvailable |
+                             kCFStreamEventErrorOccurred | kCFStreamEventEndEncountered);
+//    CFStreamClientContext client = [self performSelector: @selector(streamClientContext)];
+
+    // Configuring connection channel instance as client for read stream with described set of handling events
+    CFReadStreamSetClient(readStream, options, fakeReadStreamCallback, /*&client*/ NULL);
+}
+
 @end

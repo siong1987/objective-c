@@ -79,9 +79,46 @@
 	messageSendingDidFailCount++;
 }
 
+-(void)resetConnection {
+	[PubNub resetClient];
+	int64_t delayInSeconds = 2;
+	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+
+		[PubNub setDelegate:self];
+		[PubNub setConfiguration: [PNConfiguration defaultConfiguration]];
+
+		[PubNub connectWithSuccessBlock:^(NSString *origin) {
+
+			PNLog(PNLogGeneralLevel, nil, @"\n\n\n\n\n\n\n{BLOCK} PubNub client connected to: %@", origin);
+			dispatch_semaphore_signal(semaphore);
+		}
+							 errorBlock:^(PNError *connectionError) {
+								 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
+								 dispatch_semaphore_signal(semaphore);
+								 STFail(@"connectionError %@", connectionError);
+							 }];
+	});
+	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+								 beforeDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+	[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5]];
+	BOOL isConnected = [[PubNub sharedInstance] isConnected];
+	STAssertTrue( isConnected, @"connect fail");
+}
+
+
 - (void)test10Connect
 {
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	[PubNub resetClient];
+	NSLog(@"end reset");
+	for( int j=0; j<5; j++ )
+		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
+
+	NSLog(@"start connect");
+	[PubNub setDelegate:self];
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
 	//    [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
 	PNConfiguration *configuration = [PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo" subscribeKey:@"demo" secretKey: nil cipherKey: @"key"];
