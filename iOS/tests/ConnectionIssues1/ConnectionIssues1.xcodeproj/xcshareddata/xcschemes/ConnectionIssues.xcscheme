@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5AC38A3A17F1C0E000956E69"
-               BuildableName = "ConnectionIssues.app"
-               BlueprintName = "ConnectionIssuesBackground"
-               ReferencedContainer = "container:ConnectionIssues.xcodeproj">
+               BuildableName = "ConnectionIssues1.app"
+               BlueprintName = "ConnectionIssues1Background"
+               ReferencedContainer = "container:ConnectionIssues1.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5AC38A3A17F1C0E000956E69"
-            BuildableName = "ConnectionIssues.app"
-            BlueprintName = "ConnectionIssuesBackground"
-            ReferencedContainer = "container:ConnectionIssues.xcodeproj">
+            BuildableName = "ConnectionIssues1.app"
+            BlueprintName = "ConnectionIssues1Background"
+            ReferencedContainer = "container:ConnectionIssues1.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -52,9 +52,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5AC38A3A17F1C0E000956E69"
-            BuildableName = "ConnectionIssues.app"
-            BlueprintName = "ConnectionIssuesBackground"
-            ReferencedContainer = "container:ConnectionIssues.xcodeproj">
+            BuildableName = "ConnectionIssues1.app"
+            BlueprintName = "ConnectionIssues1Background"
+            ReferencedContainer = "container:ConnectionIssues1.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -70,9 +70,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5AC38A3A17F1C0E000956E69"
-            BuildableName = "ConnectionIssues.app"
-            BlueprintName = "ConnectionIssuesBackground"
-            ReferencedContainer = "container:ConnectionIssues.xcodeproj">
+            BuildableName = "ConnectionIssues1.app"
+            BlueprintName = "ConnectionIssues1Background"
+            ReferencedContainer = "container:ConnectionIssues1.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
