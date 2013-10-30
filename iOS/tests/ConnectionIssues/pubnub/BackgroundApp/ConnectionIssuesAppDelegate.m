@@ -39,7 +39,7 @@
 
 	[PubNub clientIdentifier];
 #if TARGET_IPHONE_SIMULATOR
-	wiFiOnUrl = @"http://localhost/wiFiReconnect.php";
+	wiFiOnUrl = @"http://192.168.2.1/wiFiReconnect.php";
 #else
 	wiFiOnUrl = @"http://192.168.2.1/wiFiReconnect.php";
 #endif
@@ -138,15 +138,11 @@
 }
 
 -(void)wifiOn {
-//	log.text = [log.text stringByAppendingFormat:@"%@ start reconnect\n", [NSDate date]];
-//	NSLog(@"wifiReconnect %@", [NSString stringWithContentsOfURL: [NSURL URLWithString: wiFiOnUrl] encoding: NSUTF8StringEncoding error: nil]);
 	NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:wiFiOnUrl]
 											 cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0];
 
-    // создаём соединение и начинаем загрузку
     NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
-
-//	log.text = [log.text stringByAppendingFormat:@"%@ end reconnect\n", [NSDate date]];
+	connection = nil;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
