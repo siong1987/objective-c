@@ -659,7 +659,8 @@ void PNReachabilityCallback(SCNetworkReachabilityRef reachability __unused, SCNe
 }
 
 - (SCNetworkConnectionFlags)synchronousStatusFlags {
-    
+    NSLog(@"synchronousStatusFlags start");
+	NSDate *start = [NSDate date];
     SCNetworkConnectionFlags reachabilityFlags;
     
     // Fetch cellular data reachability status
@@ -675,8 +676,11 @@ void PNReachabilityCallback(SCNetworkReachabilityRef reachability __unused, SCNe
     }
     
     CFRelease(internetReachability);
-    
-    
+	NSTimeInterval interval = -[start timeIntervalSinceNow];
+    NSLog(@"synchronousStatusFlags finish, %f", interval);
+	if( interval > 1.0 )
+		[self performSelector: @selector(errorSelectorReachability)];
+
     return reachabilityFlags;
 }
 
