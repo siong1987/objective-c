@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5ABD297018212C3100AC77B5 /* PNReachability+Time.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABD296F18212C3100AC77B5 /* PNReachability+Time.m */; };
 		7902452C167B5F6100E36546 /* PNWriteBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902452B167B5F6100E36546 /* PNWriteBuffer.m */; };
 		7902B9E01679E72000DE2BBB /* PNLatencyMeasureRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902B9DF1679E72000DE2BBB /* PNLatencyMeasureRequest.m */; };
 		7902B9E51679EEFC00DE2BBB /* PNRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902B9E41679EEFC00DE2BBB /* PNRequestsQueue.m */; };
@@ -104,6 +105,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5ABD296E18212C3100AC77B5 /* PNReachability+Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PNReachability+Time.h"; sourceTree = "<group>"; };
+		5ABD296F18212C3100AC77B5 /* PNReachability+Time.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PNReachability+Time.m"; sourceTree = "<group>"; };
 		7902452A167B5F6100E36546 /* PNWriteBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNWriteBuffer.h; sourceTree = "<group>"; };
 		7902452B167B5F6100E36546 /* PNWriteBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNWriteBuffer.m; sourceTree = "<group>"; };
 		7902452E167B69FF00E36546 /* PNBaseRequest+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PNBaseRequest+Protected.h"; sourceTree = "<group>"; };
@@ -531,6 +534,8 @@
 				79C32279166DFA42006DB535 /* PNIdentificationViewController.m */,
 				79EBCA1F16AC576F00E616E8 /* PNMainViewController.h */,
 				79EBCA2016AC576F00E616E8 /* PNMainViewController.m */,
+				5ABD296E18212C3100AC77B5 /* PNReachability+Time.h */,
+				5ABD296F18212C3100AC77B5 /* PNReachability+Time.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -917,6 +922,7 @@
 				792C1F7C1678B29F0054E18E /* PNSubscribeRequest.m in Sources */,
 				792C1F821678C0EF0054E18E /* PNLeaveRequest.m in Sources */,
 				792C1FAB1678D5C50054E18E /* PNTimeTokenRequest.m in Sources */,
+				5ABD297018212C3100AC77B5 /* PNReachability+Time.m in Sources */,
 				7902B9E01679E72000DE2BBB /* PNLatencyMeasureRequest.m in Sources */,
 				7902B9E51679EEFC00DE2BBB /* PNRequestsQueue.m in Sources */,
 				7902452C167B5F6100E36546 /* PNWriteBuffer.m in Sources */,
