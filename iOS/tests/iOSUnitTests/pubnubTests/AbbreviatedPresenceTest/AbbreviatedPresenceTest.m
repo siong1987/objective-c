@@ -75,7 +75,7 @@
 			 //			 dispatch_semaphore_signal(semaphore);
 			 isCompletionBlockCalled = YES;
 	 }];
-//	[self subscribeOnChannelsByTurns];
+	[self subscribeOnChannelsByTurns];
 
 	// Run loop
 	clientDidReceivePresenceEvent = 0; 
