@@ -26,3 +26,4 @@ cp -r iPadDemoApp/pubnub/libs/PubNub/* tests/PubNubTestBackgroundTime/pubnub/lib
 cp -r iPadDemoApp/pubnub/libs/PubNub/* tests/ThreadBlocked/pubnub/libs/PubNub
 cp -r iPadDemoApp/pubnub/libs/PubNub/* tests/IdleTimeout/pubnub/libs/PubNub
 
+
