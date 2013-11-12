@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 PubNub Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PNBaseRequest.h"
 #import "PNBaseRequest+Protected.h"
 
@@ -20,7 +20,7 @@
 #import "PNNotifications.h"
 
 
-@interface CatchupTest : SenTestCase <PNDelegate> {
+@interface CatchupTest : XCTestCase <PNDelegate> {
 	NSArray *pnChannels;
 	BOOL isPNClientDidReceivePresenceEventNotification;
 	BOOL isHandleClientPresenceObservationEnablingProcess;
@@ -219,7 +219,7 @@
 							 errorBlock:^(PNError *connectionError) {
 								 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
 								 dispatch_semaphore_signal(semaphore);
-								 STFail(@"connectionError %@", connectionError);
+								 XCTFail(@"connectionError %@", connectionError);
 							 }];
 	});
 	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
@@ -232,8 +232,8 @@
 	withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *channels, PNError *subscriptionError)
 	 {
 		 dispatch_semaphore_signal(semaphore);
-		 STAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
-		 STAssertEquals( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
+		 XCTAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+		 XCTAssertEqual( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
 	 }];
     // Run loop
     while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
@@ -259,10 +259,10 @@
 	popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
 		dispatch_semaphore_signal(semaphore);
-		STAssertFalse( isPNClientDidReceivePresenceEventNotification, @"notification DidReceivePresence must should not come");
-		STAssertFalse( isHandleClientPresenceObservationEnablingProcess, @"notification HandleClientPresence must should not come");
+		XCTAssertFalse( isPNClientDidReceivePresenceEventNotification, @"notification DidReceivePresence must should not come");
+		XCTAssertFalse( isHandleClientPresenceObservationEnablingProcess, @"notification HandleClientPresence must should not come");
 		NSString *newIdentifier = [PubNub clientIdentifier];
-		STAssertEqualObjects( clientIdentifier, newIdentifier, @"identifires must be equla");
+		XCTAssertEqualObjects( clientIdentifier, newIdentifier, @"identifires must be equla");
     });
     while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode

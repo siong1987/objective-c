@@ -44,8 +44,8 @@
     expectedResponse = @"UzIyeVhanI+QnyaNqVob2A==";
     id decodedMessage = [[PNCryptoHelper sharedInstance] encryptedObjectFromObject:testObject error:&processingError];
 #endif
-    STAssertNil(processingError, @"String encryption failed with error: %@", processingError);
-    STAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected encrypted object");
+    XCTAssertNil(processingError, @"String encryption failed with error: %@", processingError);
+    XCTAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected encrypted object");
 }
 
 - (void)testArrayEncryption {
@@ -61,8 +61,8 @@
     expectedResponse = @[@"0ZRaiDryY0rdklgVVU80pQ==", @"Ti5YyHCCUEjg\/op0Zm393w==", @{@"food": @"zu9G3gtmiAxYLpehtuQngw==", @"drink": @"vJYgOIZdbL4rRqdigAcujA=="}];
     id decodedMessage = [[PNCryptoHelper sharedInstance] encryptedObjectFromObject:testObject error:&processingError];
 #endif
-    STAssertNil(processingError, @"String encryption failed with error: %@", processingError);
-    STAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected encrypted object");
+    XCTAssertNil(processingError, @"String encryption failed with error: %@", processingError);
+    XCTAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected encrypted object");
 }
 
 - (void)testDictionaryEncryption {
@@ -78,8 +78,8 @@
     expectedResponse = @{@"Editer": @"e\/T2o0Y2ebkCZ4kqmYniQvZ7vsyY3lryf+7VNNWgecI=", @"Language": @"iJcNzxkNtWw1ktbExVn9xg=="};
     id decodedMessage = [[PNCryptoHelper sharedInstance] encryptedObjectFromObject:testObject error:&processingError];
 #endif
-    STAssertNil(processingError, @"String encryption failed with error: %@", processingError);
-    STAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected encrypted object");
+    XCTAssertNil(processingError, @"String encryption failed with error: %@", processingError);
+    XCTAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected encrypted object");
 }
 
 - (void)testStringDecryption {
@@ -111,8 +111,8 @@
     testObject = @"UzIyeVhanI+QnyaNqVob2A==";
     id decodedMessage = [[PNCryptoHelper sharedInstance] decryptedObjectFromObject:testObject error:&processingError];
 #endif
-    STAssertNil(processingError, @"String encryption failed with error: %@", processingError);
-    STAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected decrypted object");
+    XCTAssertNil(processingError, @"String encryption failed with error: %@", processingError);
+    XCTAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected decrypted object");
 }
 
 - (void)testArrayDecryption {
@@ -146,8 +146,8 @@
     testObject = @[@"0ZRaiDryY0rdklgVVU80pQ==", @"Ti5YyHCCUEjg\/op0Zm393w==", @{@"food": @"zu9G3gtmiAxYLpehtuQngw==", @"drink": @"vJYgOIZdbL4rRqdigAcujA=="}];
     id decodedMessage = [[PNCryptoHelper sharedInstance] decryptedObjectFromObject:testObject error:&processingError];
 #endif
-    STAssertNil(processingError, @"String encryption failed with error: %@", processingError);
-    STAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected decrypted object");
+    XCTAssertNil(processingError, @"String encryption failed with error: %@", processingError);
+    XCTAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected decrypted object");
 }
 
 - (void)testDictionaryDecryption {
@@ -181,8 +181,8 @@
     testObject = @{@"Editer": @"e\/T2o0Y2ebkCZ4kqmYniQvZ7vsyY3lryf+7VNNWgecI=", @"Language": @"iJcNzxkNtWw1ktbExVn9xg=="};
     id decodedMessage = [[PNCryptoHelper sharedInstance] decryptedObjectFromObject:testObject error:&processingError];
 #endif
-    STAssertNil(processingError, @"String encryption failed with error: %@", processingError);
-    STAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected decrypted object");
+    XCTAssertNil(processingError, @"String encryption failed with error: %@", processingError);
+    XCTAssertEqualObjects(decodedMessage, expectedResponse, @"Unexpected decrypted object");
 }
 
 - (void)tearDown {

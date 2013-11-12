@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 PubNub Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "HowToTests.h"
 #import "PNBaseRequest.h"
 #import "PNBaseRequest+Protected.h"
@@ -19,7 +19,7 @@
 #import "PNWriteBuffer.h"
 #import "PNConstants.h"
 
-@interface ChangingChannels : SenTestCase <PNDelegate>
+@interface ChangingChannels : XCTestCase <PNDelegate>
 
 @end
 
@@ -52,7 +52,7 @@
 							 errorBlock:^(PNError *connectionError) {
 								 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
 								 dispatch_semaphore_signal(semaphore);
-								 STFail(@"connectionError %@", connectionError);
+								 XCTFail(@"connectionError %@", connectionError);
 							 }];
 	});
 	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
@@ -60,7 +60,7 @@
 								 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
 	BOOL isConnect = [[PubNub sharedInstance] isConnected];
-	STAssertTrue( isConnect, @"not connected");
+	XCTAssertTrue( isConnect, @"not connected");
 }
 
 -(void)test20SubscribeOnChannelsByTurns
@@ -80,10 +80,10 @@
 			 isCompletionBlockCalled = YES;
 			 NSTimeInterval interval = -[start timeIntervalSinceNow];
 			 NSLog(@"subscribed %f, %@, %@", interval, channels, subscriptionError);
-			 STAssertTrue( interval < [PubNub sharedInstance].configuration.subscriptionRequestTimeout+1, @"Timeout error, %d instead of %d", interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout);
+			 XCTAssertTrue( interval < [PubNub sharedInstance].configuration.subscriptionRequestTimeout+1, @"Timeout error, %d instead of %d", interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout);
 
 			 if( subscriptionError == nil ) {
-				 STAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+				 XCTAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
 				 BOOL isSubscribed = NO;
 				 for( int j=0; j<channels.count; j++ ) {
 					 if( [[channels[j] name] isEqualToString: channelName] == YES ) {
@@ -91,7 +91,7 @@
 						 break;
 					 }
 				 }
-				 STAssertTrue( isSubscribed == YES, @"Channel no subecribed");
+				 XCTAssertTrue( isSubscribed == YES, @"Channel no subecribed");
 			 }
 		 }];
 		// Run loop
@@ -100,7 +100,7 @@
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 		BOOL isConnect = [PubNub sharedInstance].isConnected;
 		if( isConnect == YES )
-			STAssertTrue( isCompletionBlockCalled, @"completion block not called");
+			XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
 	}
 }
 

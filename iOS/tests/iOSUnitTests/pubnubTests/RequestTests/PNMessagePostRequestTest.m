@@ -52,7 +52,7 @@
     
     PNMessagePostRequest *request = [mockRequest initWithMessage:mockMessage];
     
-    STAssertNotNil(request, @"Cannot initialize message post request");
+    XCTAssertNotNil(request, @"Cannot initialize message post request");
     
     [mockRequest verify];
 }
@@ -60,7 +60,7 @@
 #pragma mark - Interaction tests
 
 - (void)testPostMessageRequestWithMessage {
-    STAssertNotNil([[PNMessagePostRequest alloc] initWithMessage:nil], @"Cannot initialize post message request");
+    XCTAssertNotNil([[PNMessagePostRequest alloc] initWithMessage:nil], @"Cannot initialize post message request");
 }
 
 @end

@@ -50,23 +50,23 @@
 
 - (void)testConnectionChannelWithTypeAndDelegate {
     PNConnectionChannel *connectionChannel = [PNConnectionChannel connectionChannelWithType:PNConnectionChannelMessaging andDelegate:self];
-    STAssertNotNil(connectionChannel, @"Couldn't create connection with message type and delegate");
+    XCTAssertNotNil(connectionChannel, @"Couldn't create connection with message type and delegate");
     
     connectionChannel = [PNConnectionChannel connectionChannelWithType:PNConnectionChannelService andDelegate:self];
-    STAssertNotNil(connectionChannel, @"Couldn't create connection with service type and delegate");
+    XCTAssertNotNil(connectionChannel, @"Couldn't create connection with service type and delegate");
 }
 
 - (void)testInitWithTypeAndDelegate {
     PNConnectionChannel *connectionChannel = [[PNConnectionChannel alloc] initWithType:PNConnectionChannelMessaging andDelegate:self];
-    STAssertNotNil(connectionChannel, @"Couldn't create connection with message type and delegate");
+    XCTAssertNotNil(connectionChannel, @"Couldn't create connection with message type and delegate");
     
     connectionChannel = [[PNConnectionChannel alloc] initWithType:PNConnectionChannelService andDelegate:self];
-    STAssertNotNil(connectionChannel, @"Couldn't create connection with service type and delegate");
+    XCTAssertNotNil(connectionChannel, @"Couldn't create connection with service type and delegate");
 }
 
 - (void)testIsConnected {
     PNConnectionChannel *connectionChannel = [[PNConnectionChannel alloc] initWithType:PNConnectionChannelMessaging andDelegate:self];
-    STAssertFalse([connectionChannel isConnected], @"By default channel shouldn't be connected");
+    XCTAssertFalse([connectionChannel isConnected], @"By default channel shouldn't be connected");
 }
 
 #pragma mark - Interaction tests
@@ -75,7 +75,7 @@
     PNConnectionChannel *connectionChannel = [[PNConnectionChannel alloc] initWithType:PNConnectionChannelMessaging andDelegate:self];
     [connectionChannel connect];
     
-    STAssertFalse([connectionChannel isConnected], @"Cannot connect without configuration");
+    XCTAssertFalse([connectionChannel isConnected], @"Cannot connect without configuration");
 }
 
 - (void)testDisconnect {
@@ -83,7 +83,7 @@
     
     [connectionChannel disconnect];
     
-    STAssertFalse([connectionChannel isConnected], @"Cannot connect without configuration");
+    XCTAssertFalse([connectionChannel isConnected], @"Cannot connect without configuration");
 }
 
 - (void)testScheduleRequestShouldObserveProcessing {

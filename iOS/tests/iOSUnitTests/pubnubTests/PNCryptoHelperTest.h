@@ -6,8 +6,8 @@
 //
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface PNCryptoHelperTest : SenTestCase
+@interface PNCryptoHelperTest : XCTestCase
 
 @end

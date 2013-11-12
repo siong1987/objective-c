@@ -17,7 +17,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "79C3224E166DF848006DB535"
-               BuildableName = "pubnubTests.octest"
+               BuildableName = "pubnubTests.xctest"
                BlueprintName = "pubnubTests"
                ReferencedContainer = "container:pubnub.xcodeproj">
             </BuildableReference>

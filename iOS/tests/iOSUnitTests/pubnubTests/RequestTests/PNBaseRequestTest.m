@@ -44,25 +44,25 @@
 - (void)testTimeout {
     PNBaseRequest *baseRequest = [[PNBaseRequest alloc] init];
     
-    STAssertTrue([PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout == [baseRequest timeout], @"Default value of timeout should be qual nonSubscriptionRequestTimeout");
+    XCTAssertTrue([PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout == [baseRequest timeout], @"Default value of timeout should be qual nonSubscriptionRequestTimeout");
 }
 
 - (void)testCallbackMethodName {
     PNBaseRequest *baseRequest = [[PNBaseRequest alloc] init];
     
-    STAssertTrue([[baseRequest callbackMethodName] isEqualToString:@"0"], @"Default value of callback method name is 0");
+    XCTAssertTrue([[baseRequest callbackMethodName] isEqualToString:@"0"], @"Default value of callback method name is 0");
 }
 
 - (void)testResourcePath {
     PNBaseRequest *baseRequest = [[PNBaseRequest alloc] init];
     
-    STAssertTrue([[baseRequest resourcePath] isEqualToString:@"/"], @"Default value of callback method name is //");
+    XCTAssertTrue([[baseRequest resourcePath] isEqualToString:@"/"], @"Default value of callback method name is //");
 }
 
 - (void)testBuffer {
     PNBaseRequest *baseRequest = [[PNBaseRequest alloc] init];
     
-    STAssertTrue([[baseRequest buffer] isKindOfClass:[PNWriteBuffer class]], @"Should return valid object of write buffer here");
+    XCTAssertTrue([[baseRequest buffer] isKindOfClass:[PNWriteBuffer class]], @"Should return valid object of write buffer here");
 }
 
 // Protected methods
@@ -81,7 +81,7 @@
 - (void)testAllowedRetryCount {
     PNBaseRequest *baseRequest = [[PNBaseRequest alloc] init];
     
-    STAssertTrue([baseRequest allowedRetryCount] == kPNRequestMaximumRetryCount, @"Should be defined as kPNRequestMaximumRetryCount");
+    XCTAssertTrue([baseRequest allowedRetryCount] == kPNRequestMaximumRetryCount, @"Should be defined as kPNRequestMaximumRetryCount");
 }
 
 
@@ -90,7 +90,7 @@
     
     [baseRequest increaseRetryCount];
     
-    STAssertTrue([baseRequest retryCount] == 1, @"By default retryCount should be 0");
+    XCTAssertTrue([baseRequest retryCount] == 1, @"By default retryCount should be 0");
 }
 
 - (void)testCanRetry {
@@ -108,8 +108,8 @@
     
     NSString *payload = [baseRequest HTTPPayload];
     
-    STAssertTrue([payload isKindOfClass:[NSString class]], @"Payload should be a string");
-    STAssertTrue([payload length] > 0, @"Payload should has length more than zero");
+    XCTAssertTrue([payload isKindOfClass:[NSString class]], @"Payload should be a string");
+    XCTAssertTrue([payload length] > 0, @"Payload should has length more than zero");
 }
 
 #pragma mark - Interaction tests

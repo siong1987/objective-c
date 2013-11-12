@@ -45,7 +45,7 @@
 - (void)testConnectionWithIdentifier {
     PNConnection *connection = [PNConnection connectionWithIdentifier:@"MyTestIdentifier"];
     
-    STAssertNotNil(connection, @"Couldn't create connection with identifier");
+    XCTAssertNotNil(connection, @"Couldn't create connection with identifier");
 }
 
 - (void)testConnect {
@@ -63,13 +63,13 @@
 - (void)testIsConnected {
     PNConnection *connection = [PNConnection connectionWithIdentifier:@"MyTestIdentifier"];
     
-    STAssertFalse([connection isConnected], @"Shouldn't be connected by default");
+    XCTAssertFalse([connection isConnected], @"Shouldn't be connected by default");
 }
 
 - (void)testIsDisconnected {
     PNConnection *connection = [PNConnection connectionWithIdentifier:@"MyTestIdentifier"];
     
-    STAssertTrue([connection isDisconnected], @"Should beDisconnected after initializing");
+    XCTAssertTrue([connection isDisconnected], @"Should beDisconnected after initializing");
 }
 
 #pragma mark - Interaction tests
@@ -78,14 +78,14 @@
     PNConnection *connection = [PNConnection connectionWithIdentifier:@"MyTestIdentifier"];
     
     [PNConnection destroyConnection:connection];
-    STAssertNil([PNConnection connectionFromPoolWithIdentifier:@"MyTestIdentifier"], @"Shouldn't be disconnected by default");
+    XCTAssertNil([PNConnection connectionFromPoolWithIdentifier:@"MyTestIdentifier"], @"Shouldn't be disconnected by default");
 }
 
 - (void)testCloseAllConnections {
     __unused PNConnection *connection = [PNConnection connectionWithIdentifier:@"MyTestIdentifier"];
     
     [PNConnection closeAllConnections];
-    STAssertNil([PNConnection connectionFromPoolWithIdentifier:@"MyTestIdentifier"], @"Shouldn't be disconnected by default");    
+    XCTAssertNil([PNConnection connectionFromPoolWithIdentifier:@"MyTestIdentifier"], @"Shouldn't be disconnected by default");    
 }
 
 - (void)testScheduleNextRequestExecution {

@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 PubNub Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PubNub.h"
 #import "PubNub+Protected.h"
 #import "PNConfiguration.h"
@@ -18,7 +18,7 @@
 #import "PNDefaultConfiguration.h"
 #import "Swizzler.h"
 
-@interface TimeCommand : SenTestCase <PNDelegate> {
+@interface TimeCommand : XCTestCase <PNDelegate> {
 	BOOL _isPNClientConnectionDidFailWithErrorNotification;
 	BOOL _isDidDisconnectFromOrigin;
 	BOOL _isDidConnectToOrigin;
@@ -101,7 +101,7 @@
 	});
 	for( int j=0; j<kPNConnectionIdleTimeout+10 && isCompletionBlockCalled == NO; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
+	XCTAssertTrue(isCompletionBlockCalled, @"Completion block not called");
 
 
 	_isPNClientConnectionDidFailWithErrorNotification = NO;
@@ -110,8 +110,8 @@
 	SwizzleReceipt *receipt = [self setOriginLookupResourcePath];
 	for( int j=0; j<20; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( _isPNClientConnectionDidFailWithErrorNotification, @"notification not called");
-	STAssertTrue( _isDidDisconnectFromOrigin, @"delegate's method not called");
+	XCTAssertTrue( _isPNClientConnectionDidFailWithErrorNotification, @"notification not called");
+	XCTAssertTrue( _isDidDisconnectFromOrigin, @"delegate's method not called");
 
 	_isDidConnectToOrigin = NO;
 	_PNClientDidConnectToOriginNotification = NO;
@@ -119,8 +119,8 @@
 	[Swizzler unswizzleFromReceipt:receipt];
 	for( int j=0; j<20; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( _PNClientDidConnectToOriginNotification, @"notification not called");
-	STAssertTrue( _isDidConnectToOrigin, @"delegate's method not called");
+	XCTAssertTrue( _PNClientDidConnectToOriginNotification, @"notification not called");
+	XCTAssertTrue( _isDidConnectToOrigin, @"delegate's method not called");
 }
 
 

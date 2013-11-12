@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 PubNub Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface HowToTests : SenTestCase
+@interface HowToTests : XCTestCase
 
 @end

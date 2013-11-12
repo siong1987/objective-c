@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 Micro-B. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface PNMessagingChannelTest : SenTestCase
+@interface PNMessagingChannelTest : XCTestCase
 
 @end

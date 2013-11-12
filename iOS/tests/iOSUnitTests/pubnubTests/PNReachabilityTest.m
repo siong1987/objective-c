@@ -32,7 +32,7 @@
     // Set-up code here.
     _reachability = [PNReachability serviceReachability];
     
-    STAssertNotNil(_reachability, @"Cannot initialize reachability");
+    XCTAssertNotNil(_reachability, @"Cannot initialize reachability");
 }
 
 - (void)tearDown
@@ -54,7 +54,7 @@
      - expected available service
      */
     
-    STAssertFalse([_reachability isServiceAvailable], @"Service is not available");
+    XCTAssertFalse([_reachability isServiceAvailable], @"Service is not available");
 }
 
 - (void)testRefreshReachabilityState {
@@ -64,7 +64,7 @@
      - expected available service
      */
     [_reachability refreshReachabilityState];
-    STAssertTrue([_reachability isServiceAvailable], @"Service is not available");
+    XCTAssertTrue([_reachability isServiceAvailable], @"Service is not available");
 }
 
 - (void)testStartServiceReachabilityMonitoringFalse {
@@ -101,7 +101,7 @@
     [[PubNub sharedInstance] setConfiguration:mockConfig];
     
     [_reachability startServiceReachabilityMonitoring];
-    STAssertTrue([_reachability isServiceAvailable], @"Service reachability is not available");
+    XCTAssertTrue([_reachability isServiceAvailable], @"Service reachability is not available");
     [_reachability stopServiceReachabilityMonitoring];
 }
 

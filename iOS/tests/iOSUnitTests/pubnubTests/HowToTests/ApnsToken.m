@@ -7,7 +7,7 @@
 //  Copyright (c) 2013 PubNub Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PNBaseRequest.h"
 #import "PNBaseRequest+Protected.h"
 
@@ -19,7 +19,7 @@
 #import "PNWriteBuffer.h"
 #import "PNConstants.h"
 
-@interface ApnsToken : SenTestCase <PNDelegate>{
+@interface ApnsToken : XCTestCase <PNDelegate>{
 	NSArray *pnChannels;
 	BOOL pNClientPushNotificationEnableDidCompleteNotification;
 	BOOL pNClientPushNotificationEnableDidFailNotification;
@@ -107,7 +107,7 @@
 							 errorBlock:^(PNError *connectionError) {
 								 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
 								 dispatch_semaphore_signal(semaphore);
-								 STFail(@"connectionError %@", connectionError);
+								 XCTFail(@"connectionError %@", connectionError);
 							 }];
 	});
 	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
@@ -139,13 +139,13 @@
 	[PubNub enablePushNotificationsOnChannels: pnChannels withDevicePushToken:pushToken andCompletionHandlingBlock:
 	 ^(NSArray *channels, PNError *error) {
 		 isCompletionBlockCalled = YES;
-		 STAssertNotNil( error, @"enablePushNotificationsOnChannels must return error");
+		 XCTAssertNotNil( error, @"enablePushNotificationsOnChannels must return error");
 	 }];
 	for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 /*||
 		(isCompletionBlockCalled == NO || pNClientPushNotificationEnableDidFailNotification == NO)*/; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( isCompletionBlockCalled, @"completion block not called");
-	STAssertTrue( pNClientPushNotificationEnableDidFailNotification, @"notification not called");
+	XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	XCTAssertTrue( pNClientPushNotificationEnableDidFailNotification, @"notification not called");
 
 	isCompletionBlockCalled = NO;
 	pNClientPushNotificationEnableDidCompleteNotification = NO;
@@ -153,13 +153,13 @@
 	[PubNub enablePushNotificationsOnChannels: pnChannels withDevicePushToken: nil andCompletionHandlingBlock:
 	 ^(NSArray *channels, PNError *error) {
 		 isCompletionBlockCalled = YES;
-		 STAssertNotNil( error, @"enablePushNotificationsOnChannels must return error");
+		 XCTAssertNotNil( error, @"enablePushNotificationsOnChannels must return error");
 	 }];
 	for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 /*||
 		(isCompletionBlockCalled == NO || pNClientPushNotificationEnableDidFailNotification == NO)*/; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( isCompletionBlockCalled, @"completion block not called");
-	STAssertTrue( pNClientPushNotificationEnableDidFailNotification, @"notification not called");
+	XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	XCTAssertTrue( pNClientPushNotificationEnableDidFailNotification, @"notification not called");
 
 	isCompletionBlockCalled = NO;
 	pNClientPushNotificationEnableDidCompleteNotification = NO;
@@ -168,13 +168,13 @@
 	[PubNub enablePushNotificationsOnChannels: pnChannels withDevicePushToken:pushToken andCompletionHandlingBlock:
 	 ^(NSArray *channels, PNError *error) {
 		 isCompletionBlockCalled = YES;
-		 STAssertNil( error, @"enablePushNotificationsOnChannels error %@", error);
+		 XCTAssertNil( error, @"enablePushNotificationsOnChannels error %@", error);
 	 }];
 	for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 /*||
 		(isCompletionBlockCalled == NO || pNClientPushNotificationEnableDidCompleteNotification == NO)*/; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( isCompletionBlockCalled, @"completion block not called");
-	STAssertTrue( pNClientPushNotificationEnableDidCompleteNotification, @"notification not called");
+	XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	XCTAssertTrue( pNClientPushNotificationEnableDidCompleteNotification, @"notification not called");
 }
 
 -(void)test40DisablePushNotificationsOnChannels {
@@ -187,13 +187,13 @@
 	[PubNub disablePushNotificationsOnChannels: pnChannels withDevicePushToken: nil andCompletionHandlingBlock:
 	 ^(NSArray *channels, PNError *error) {
 		 isCompletionBlockCalled = YES;
-		 STAssertNotNil( error, @"disablePushNotificationsOnChannels must return error");
+		 XCTAssertNotNil( error, @"disablePushNotificationsOnChannels must return error");
 	 }];
 	for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 /*||
 		(isCompletionBlockCalled == NO || pNClientPushNotificationDisableDidFailNotification == NO)*/; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( isCompletionBlockCalled, @"completion block not called");
-	STAssertTrue( pNClientPushNotificationDisableDidFailNotification, @"notification not called");
+	XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	XCTAssertTrue( pNClientPushNotificationDisableDidFailNotification, @"notification not called");
 
 	isCompletionBlockCalled = NO;
 	pNClientPushNotificationDisableDidCompleteNotification = NO;
@@ -202,13 +202,13 @@
 	[PubNub disablePushNotificationsOnChannels: pnChannels withDevicePushToken:pushToken andCompletionHandlingBlock:
 	 ^(NSArray *channels, PNError *error) {
 		 isCompletionBlockCalled = YES;
-		 STAssertNil( error, @"disablePushNotificationsOnChannels error %@", error);
+		 XCTAssertNil( error, @"disablePushNotificationsOnChannels error %@", error);
 	 }];
 	for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 /*||
 		(isCompletionBlockCalled == NO || pNClientPushNotificationDisableDidCompleteNotification == NO)*/; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( isCompletionBlockCalled, @"completion block not called");
-	STAssertTrue( pNClientPushNotificationDisableDidCompleteNotification, @"notification not called");
+	XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	XCTAssertTrue( pNClientPushNotificationDisableDidCompleteNotification, @"notification not called");
 }
 
 @end

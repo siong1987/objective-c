@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 PubNub Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface PNSubscribeUnsubscribeTest : SenTestCase
+@interface PNSubscribeUnsubscribeTest : XCTestCase
 
 @end

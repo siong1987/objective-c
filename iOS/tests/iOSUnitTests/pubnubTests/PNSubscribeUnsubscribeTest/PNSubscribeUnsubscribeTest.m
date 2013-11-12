@@ -45,7 +45,7 @@
                          errorBlock:^(PNError *connectionError) {
 							 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
 							 dispatch_semaphore_signal(semaphore);
-							 STFail(@"connectionError %@", connectionError);
+							 XCTFail(@"connectionError %@", connectionError);
                          }];
     while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
@@ -62,18 +62,18 @@
 		 NSLog(@"subscribeOnChannels end");
 //		 dispatch_semaphore_signal(semaphore);
 		 isCompletionBlockCalled = YES;
-		 STAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+		 XCTAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
 		 if( pnChannels.count != channels.count ) {
 			 NSLog( @"pnChannels.count \n%@\n%@", pnChannels, channels);
 		 }
-		 STAssertEquals( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
+		 XCTAssertEqual( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
 	 }];
     // Run loop
 	NSLog(@"subscribeOnChannels runloop");
 	for( int i=0; i<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
 		isCompletionBlockCalled == NO; i++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
 }
 
 - (void)unsubscribeOnChannels:(NSArray*)pnChannels withPresenceEvent:(BOOL)presenceEvent
@@ -89,15 +89,15 @@
 		 // Check whether "unsubscribeError" is nil or not (if not, than handle error)
 //		 dispatch_semaphore_signal(semaphore);
 		 isCompletionBlockCalled = YES;
-		 STAssertNil( unsubscribeError, @"unsubscribeError %@", unsubscribeError);
-		 STAssertEquals( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
+		 XCTAssertNil( unsubscribeError, @"unsubscribeError %@", unsubscribeError);
+		 XCTAssertEqual( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
 	 }];
     // Run loop
 	NSLog(@"unsubscribeOnChannels runloop");
 	for( int i=0; i<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
 		isCompletionBlockCalled == NO; i++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
-	STAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
 }
 
 - (void)test10SubscribeOnChannels

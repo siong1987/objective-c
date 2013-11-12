@@ -53,7 +53,7 @@
 													subscribeKey:nil
 													   secretKey:nil
 													   cipherKey:@"my_key"];
-	STAssertNotNil( configuration, @"configuration can be nil");
+	XCTAssertNotNil( configuration, @"configuration can be nil");
 	[configurations addObject: configuration];
 ////
 	configuration = [PNConfiguration configurationForOrigin:nil
@@ -61,7 +61,7 @@
 											   subscribeKey:nil
 												  secretKey:nil
 												  cipherKey:@" asdashd asd fsdkl faskd asdkf kasldf "];
-	STAssertNotNil( configuration, @"configuration can be nil");
+	XCTAssertNotNil( configuration, @"configuration can be nil");
 	[configurations addObject: configuration];
 ////
 	configuration = [PNConfiguration configurationForOrigin:@"chaos.pubnub.com"
@@ -69,7 +69,7 @@
 											   subscribeKey:nil
 												  secretKey:nil
 												  cipherKey:@"chaos.pubnub.com"];
-	STAssertNotNil( configuration, @"configuration can be nil");
+	XCTAssertNotNil( configuration, @"configuration can be nil");
 	[configurations addObject: configuration];
 ////
 	configuration = [PNConfiguration configurationForOrigin:@"pubsub.pubnub.com"
@@ -77,7 +77,7 @@
 											   subscribeKey:nil
 												  secretKey:nil
 												  cipherKey:@"enigma"];
-	STAssertNotNil( configuration, @"configuration can be nil");
+	XCTAssertNotNil( configuration, @"configuration can be nil");
 	[configurations addObject: configuration];
 ////
 	configuration = [PNConfiguration configurationForOrigin:@"enigma"
@@ -85,7 +85,7 @@
 											   subscribeKey:@"enigma"
 												  secretKey:nil
 												  cipherKey:@"chaos.pubnub.com"];
-	STAssertNotNil( configuration, @"configuration can be nil");
+	XCTAssertNotNil( configuration, @"configuration can be nil");
 	[configurations addObject: configuration];
 ////
 	configuration = [PNConfiguration configurationForOrigin:nil
@@ -93,25 +93,25 @@
 											   subscribeKey:@"enigma"
 												  secretKey:nil
 												  cipherKey:@"enigma"];
-	STAssertNotNil( configuration, @"configuration can be nil");
+	XCTAssertNotNil( configuration, @"configuration can be nil");
 	[configurations addObject: configuration];
 ////
     PNError *helperInitializationError = nil;
 	BOOL result;
 	for( int i=0; i<configurations.count; i++ ) {
 		result = [[PNCryptoHelper sharedInstance] updateWithConfiguration:configurations[i] withError:&helperInitializationError];
-		STAssertTrue( result, @"result can be NO");
-		STAssertNil( helperInitializationError, @"helperInitializationError %@", helperInitializationError);
+		XCTAssertTrue( result, @"result can be NO");
+		XCTAssertNil( helperInitializationError, @"helperInitializationError %@", helperInitializationError);
 
 		for( int j=0; j<strings.count; j++ ) {
 			PNError *processingError = nil;
 			NSString *encodeString = [[PNCryptoHelper sharedInstance] encryptedStringFromString: strings[j] error: &processingError];
-			STAssertNil( processingError, @"processingError %@", processingError);
-			STAssertFalse( [strings[j] isEqual: encodeString], @"strings must be not equal");
+			XCTAssertNil( processingError, @"processingError %@", processingError);
+			XCTAssertFalse( [strings[j] isEqual: encodeString], @"strings must be not equal");
 			processingError = nil;
 			NSString *decodeString = [[PNCryptoHelper sharedInstance] decryptedStringFromString: encodeString error: &processingError];
-			STAssertNil( processingError, @"processingError %@", processingError);
-			STAssertEqualObjects( strings[j], decodeString, @"strings not equal");
+			XCTAssertNil( processingError, @"processingError %@", processingError);
+			XCTAssertEqualObjects( strings[j], decodeString, @"strings not equal");
 
 
 			NSString *encrypt = [PubNub AESEncrypt: strings[j] error: &processingError];
@@ -119,21 +119,21 @@
 //				encrypt = [encrypt substringWithRange: NSMakeRange(1, encrypt.length-2)];
 			NSLog(@"string \n%@", strings[j]);
 			NSLog(@"encrypt \n%@", encrypt);
-			STAssertTrue( encrypt.length > 0 , @"encrypt empty");
-			STAssertNil( processingError, @"AESEncrypt error, %@", processingError);
+			XCTAssertTrue( encrypt.length > 0 , @"encrypt empty");
+			XCTAssertNil( processingError, @"AESEncrypt error, %@", processingError);
 
 			processingError = nil;
 			NSString *decrypt = [PubNub AESDecrypt: encrypt error: &processingError];
 			NSLog(@"decrypt \n%@", decrypt);
 //			if( decrypt.length > 3 && [[decrypt substringToIndex:1] isEqualToString: @"\""] )
 //				decrypt = [decrypt substringWithRange: NSMakeRange(1, decrypt.length-2)];
-			STAssertNil( processingError, @"AESDecrypt error, %@, %@", processingError, strings[j]);
+			XCTAssertNil( processingError, @"AESDecrypt error, %@, %@", processingError, strings[j]);
 //			if( processingError != nil ) {
 //				processingError = nil;
 //				NSString *decrypt = [PubNub AESDecrypt: encrypt error: &processingError];
 //			}
 			if( processingError == nil )
-				STAssertEqualObjects( strings[j], decrypt, @"AESEncrypt != AESDecrypt (string)");
+				XCTAssertEqualObjects( strings[j], decrypt, @"AESEncrypt != AESDecrypt (string)");
 		}
 //file://localhost/Users/tuller/work/pubnub%203.5.2/iOS/tests/iOSUnitTests/pubnubTests/PNCryptoTest/PNCryptoTest.m: test failure: -[PNCryptoTest test10updateWithConfiguration] failed: "((processingError) == nil)" should be true. AESDecrypt error, Domain=com.pubnub.pubnub; Code=123; Description="CRYPTO: Input data processing error"; Reason="The crypto helper failed to process input data because of an unknown error"; Fix suggestion="The cryptor stumbled on an unknown error during input data processing."; Associated object=(null), asdvjad  adfa asdkfjlhas half alhkashkf asfdhk1239851239847пывоадфыоафлыва
 //file://localhost/Users/tuller/work/pubnub%203.5.2/iOS/tests/iOSUnitTests/pubnubTests/PNCryptoTest/PNCryptoTest.m: test failure: -[PNCryptoTest test10updateWithConfiguration] failed: "((processingError) == nil)" should be true. AESDecrypt error, Domain=com.pubnub.pubnub; Code=123; Description="CRYPTO: Input data processing error"; Reason="The crypto helper failed to process input data because of an unknown error"; Fix suggestion="The cryptor stumbled on an unknown error during input data processing."; Associated object=(null), 12312341#%##$^#^@$^%&^&*:{AD:{X>QW{~{!@{::{AD
@@ -162,8 +162,8 @@
 //			if( encrypt.length > 3 && [[encrypt substringToIndex:1] isEqualToString: @"\""] )
 //				encrypt = [encrypt substringWithRange: NSMakeRange(1, encrypt.length-2)];
 			NSLog(@"encrypt %@", encrypt);
-			STAssertTrue( encrypt.length > 0 , @"encrypt empty");
-			STAssertNil( processingError, @"AESEncrypt error", processingError);
+			XCTAssertTrue( encrypt.length > 0 , @"encrypt empty");
+			XCTAssertNil( processingError, @"AESEncrypt error", processingError);
 
 			processingError = nil;
 			id decrypt = [PubNub AESDecrypt: encrypt error: &processingError];
@@ -171,9 +171,9 @@
 			if( result == NO ) {
 				NSLog(@"AESEncrypt != AESDecrypt (objects) \n%@\n%@", objects[j], decrypt );
 			}
-			STAssertNil( processingError, @"AESDecrypt error, %@, %@", processingError, objects[j]);
+			XCTAssertNil( processingError, @"AESDecrypt error, %@, %@", processingError, objects[j]);
 			if( processingError == nil )
-				STAssertEqualObjects( objects[j], decrypt, @"AESEncrypt != AESDecrypt (objects)");
+				XCTAssertEqualObjects( objects[j], decrypt, @"AESEncrypt != AESDecrypt (objects)");
 		}
 	}
 
@@ -183,8 +183,8 @@
 												  secretKey:nil
 												  cipherKey:nil];
 	result = [[PNCryptoHelper sharedInstance] updateWithConfiguration:configuration withError:&helperInitializationError];
-	STAssertFalse( result, @"result can be YES");
-	STAssertNotNil( helperInitializationError, @"helperInitializationError %@", helperInitializationError);
+	XCTAssertFalse( result, @"result can be YES");
+	XCTAssertNotNil( helperInitializationError, @"helperInitializationError %@", helperInitializationError);
 }
 
 @end

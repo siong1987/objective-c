@@ -31,7 +31,7 @@
     
     _latMeasureRequest = [[PNLatencyMeasureRequest alloc] init];
     
-    STAssertNotNil(_latMeasureRequest, @"Cannot initialize latencyMeasure");
+    XCTAssertNotNil(_latMeasureRequest, @"Cannot initialize latencyMeasure");
 }
 
 - (void)tearDown
@@ -47,19 +47,19 @@
     
     [_latMeasureRequest markStartTime];
     
-    STAssertTrue(_latMeasureRequest.startTime <= CFAbsoluteTimeGetCurrent() && _latMeasureRequest.startTime != 0, @"Start time marked incorrectly");
+    XCTAssertTrue(_latMeasureRequest.startTime <= CFAbsoluteTimeGetCurrent() && _latMeasureRequest.startTime != 0, @"Start time marked incorrectly");
 }
 
 - (void)testMarkEndTime {
     [_latMeasureRequest markEndTime];
-    STAssertTrue(_latMeasureRequest.endTime <= CFAbsoluteTimeGetCurrent() && _latMeasureRequest.endTime != 0, @"End time marked incorrectly");
+    XCTAssertTrue(_latMeasureRequest.endTime <= CFAbsoluteTimeGetCurrent() && _latMeasureRequest.endTime != 0, @"End time marked incorrectly");
 }
 
 - (void)testLatency {
     [_latMeasureRequest markStartTime];
     [_latMeasureRequest markEndTime];
     
-    STAssertTrue(_latMeasureRequest.endTime - _latMeasureRequest.startTime == [_latMeasureRequest latency], @"Latency expected to be equal to a difference between end time and start time");
+    XCTAssertTrue(_latMeasureRequest.endTime - _latMeasureRequest.startTime == [_latMeasureRequest latency], @"Latency expected to be equal to a difference between end time and start time");
 }
 
 #pragma mark - Interaction tests

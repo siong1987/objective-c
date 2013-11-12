@@ -97,7 +97,7 @@
 							 errorBlock:^(PNError *connectionError) {
 								 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
 								 dispatch_semaphore_signal(semaphore);
-								 STFail(@"connectionError %@", connectionError);
+								 XCTFail(@"connectionError %@", connectionError);
 							 }];
 	});
 	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
@@ -105,7 +105,7 @@
 								 beforeDate:[NSDate dateWithTimeIntervalSinceNow:10]];
 	[[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5]];
 	BOOL isConnected = [[PubNub sharedInstance] isConnected];
-	STAssertTrue( isConnected, @"connect fail");
+	XCTAssertTrue( isConnected, @"connect fail");
 }
 
 
@@ -136,7 +136,7 @@
                          errorBlock:^(PNError *connectionError) {
 							 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
 							 dispatch_semaphore_signal(semaphore);
-							 STFail(@"connectionError %@", connectionError);
+							 XCTFail(@"connectionError %@", connectionError);
                          }];
     while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
@@ -154,7 +154,7 @@
 	withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *channels, PNError *subscriptionError)
 	 {
 		 dispatch_semaphore_signal(semaphore);
-		 STAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+		 XCTAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
 	 }];
     // Run loop
     while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
@@ -196,7 +196,7 @@
 		//		STAssertTrue(handleClientMessageProcessingStateChange, @"notification not called");
 		//		STAssertTrue(handleClientDidReceiveMessage || state != PNMessageSent, @"notificaition not called");
 	}
-	STAssertTrue(messageDidSendCount == pnChannels1.count-1, @"messageDidSendCount (%d) must be = pnChannels1.count (%d)", messageDidSendCount, pnChannels1.count);
+	XCTAssertTrue(messageDidSendCount == pnChannels1.count-1, @"messageDidSendCount (%d) must be = pnChannels1.count (%d)", messageDidSendCount, pnChannels1.count);
 }
 //file://localhost/Users/tuller/work/pubnub%203.5.1b/iOS/iPadDemoApp/pubnubTests/BadJsonTest/BadJsonTest.m: error: test18SendMessage (BadJsonTest) failed: "messageDidSendCount == pnChannels1.count" should be true. messageDidSendCount (0) must be = pnChannels1.count (4)
 
@@ -219,7 +219,7 @@
 							 errorBlock:^(PNError *connectionError) {
 								 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
 								 dispatch_semaphore_signal(semaphore);
-								 STFail(@"connectionError %@", connectionError);
+								 XCTFail(@"connectionError %@", connectionError);
 							 }];
 	});
 	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
@@ -241,14 +241,14 @@
 //		 dispatch_semaphore_signal(semaphore);
 		 isCompletionBlockCalled = YES;
 		 NSLog(@"test20SubscribeOnChannels %@, %@", (subscriptionError!=nil) ? @"" : channels, subscriptionError);
-		 STAssertNotNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+		 XCTAssertNotNil( subscriptionError, @"subscriptionError %@", subscriptionError);
 	 }];
     // Run loop
 	for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
 		isCompletionBlockCalled == NO /*&& notificationParticipantsListCalled == NO*/; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 
-	STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
+	XCTAssertTrue(isCompletionBlockCalled, @"Completion block not called");
 	[Swizzler unswizzleFromReceipt:receipt];
 //	STAssertTrue( handleClientSubscriptionProcess, @"notification not caleld");
 }
@@ -276,14 +276,14 @@
 												 (messageSendingState==PNMessageSending) ? @"PNMessageSending" : @"",
 												(messageSendingState==PNMessageSent) ? @"PNMessageSent" : @"",
 												(messageSendingState==PNMessageSendingError) ? @"PNMessageSendingError" : @"");
-										   STAssertFalse(messageSendingState==PNMessageSent, @"messageSendingState can't be equal PNMessageSent, %@", data);
+										   XCTAssertFalse(messageSendingState==PNMessageSent, @"messageSendingState can't be equal PNMessageSent, %@", data);
 									   }];
 
 		for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
 			isCompletionBlockCalled == NO /*&& notificationParticipantsListCalled == NO*/; j++ )
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 		[Swizzler unswizzleFromReceipt: receipt];
-		STAssertTrue(isCompletionBlockCalled, @"completion block not called");
+		XCTAssertTrue(isCompletionBlockCalled, @"completion block not called");
 		//		STAssertTrue(handleClientDidReceiveMessage || state != PNMessageSent, @"notificaition not called");
 	}
 //	STAssertTrue(messageSendingDidFailCount >= pnChannels.count, @"messageSendingDidFailCount (%d) must be >= pnChannels.count (%d)", messageSendingDidFailCount, pnChannels.count);
@@ -302,14 +302,14 @@
 		 //		 dispatch_semaphore_signal(semaphore);
 		 isCompletionBlockCalled = YES;
 		 NSLog(@"test50SubscribeOnChannels1 %@, %@", (subscriptionError!=nil) ? @"" : channels, subscriptionError);
-		 STAssertNotNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+		 XCTAssertNotNil( subscriptionError, @"subscriptionError %@", subscriptionError);
 	 }];
     // Run loop
 	for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
 		isCompletionBlockCalled == NO /*&& notificationParticipantsListCalled == NO*/; j++ )
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 
-	STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
+	XCTAssertTrue(isCompletionBlockCalled, @"Completion block not called");
 	[Swizzler unswizzleFromReceipt: receipt];
 	//	STAssertTrue( handleClientSubscriptionProcess, @"notification not caleld");
 }
@@ -337,14 +337,14 @@
 												 (messageSendingState==PNMessageSending) ? @"PNMessageSending" : @"",
 												 (messageSendingState==PNMessageSent) ? @"PNMessageSent" : @"",
 												 (messageSendingState==PNMessageSendingError) ? @"PNMessageSendingError" : @"");
-										   STAssertFalse(messageSendingState==PNMessageSent, @"messageSendingState can't be equal PNMessageSent, %@", data);
+										   XCTAssertFalse(messageSendingState==PNMessageSent, @"messageSendingState can't be equal PNMessageSent, %@", data);
 									   }];
 
 		for( int j=0; j<[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1 &&
 			isCompletionBlockCalled == NO /*&& notificationParticipantsListCalled == NO*/; j++ )
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 		[Swizzler unswizzleFromReceipt: receipt];
-		STAssertTrue(isCompletionBlockCalled, @"completion block not called");
+		XCTAssertTrue(isCompletionBlockCalled, @"completion block not called");
 		//		STAssertTrue(handleClientDidReceiveMessage || state != PNMessageSent, @"notificaition not called");
 	}
 	//	STAssertTrue(messageSendingDidFailCount >= pnChannels.count, @"messageSendingDidFailCount (%d) must be >= pnChannels.count (%d)", messageSendingDidFailCount, pnChannels.count);

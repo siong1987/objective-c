@@ -43,7 +43,7 @@
      */
     
     PNServiceChannel *channel = [PNServiceChannel serviceChannelWithDelegate:nil];
-    STAssertNotNil(channel, @"Channel is not available");
+    XCTAssertNotNil(channel, @"Channel is not available");
 }
 
 - (void)testInitWithTypeAndDelegate {
@@ -57,10 +57,10 @@
      */
     
     PNServiceChannel *channel = [[PNServiceChannel alloc] initWithType:PNConnectionChannelService andDelegate:nil];
-    STAssertNotNil(channel, @"Channel is not available");
+    XCTAssertNotNil(channel, @"Channel is not available");
     
     channel = [[PNServiceChannel alloc] initWithType:PNConnectionChannelMessaging andDelegate:nil];
-    STAssertNotNil(channel, @"Channel is not available");
+    XCTAssertNotNil(channel, @"Channel is not available");
 }
 
 

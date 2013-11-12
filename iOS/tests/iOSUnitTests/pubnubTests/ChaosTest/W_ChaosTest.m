@@ -380,7 +380,7 @@
                                                                             BOOL connected,
                                                                             PNError *error)
 	 {
-		 STAssertNil( error, @"error %@", error);
+		 XCTAssertNil( error, @"error %@", error);
 		 if (!connected && error) {
 			 PNLog(PNLogGeneralLevel, self, @"#2 PubNub client was unable to connect because of error: %@",
 				   [error localizedDescription],
@@ -399,8 +399,8 @@
                                                                                      NSArray *channels,
                                                                                      PNError *subscriptionError)
 	 {
-		 STAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
-		 STAssertFalse( state == PNSubscriptionProcessNotSubscribedState, @"state == PNSubscriptionProcessNotSubscribedState, %@", subscriptionError );
+		 XCTAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+		 XCTAssertFalse( state == PNSubscriptionProcessNotSubscribedState, @"state == PNSubscriptionProcessNotSubscribedState, %@", subscriptionError );
 	 }];
 }
 
@@ -463,7 +463,7 @@
 		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 
 	BOOL isConnected = [[PubNub sharedInstance] isConnected];
-	STAssertTrue( isConnected, @"not connection");
+	XCTAssertTrue( isConnected, @"not connection");
 }
 
 - (void)test20SubscribeOnChannels
@@ -474,8 +474,8 @@
 	withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *channels, PNError *subscriptionError)
 	 {
 		 dispatch_semaphore_signal(semaphore);
-		 STAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
-		 STAssertEquals( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
+		 XCTAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+		 XCTAssertEqual( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
 		 //		connectedChannels = channels;
 		 switch(state) {
 			 case PNSubscriptionProcessNotSubscribedState:
@@ -496,7 +496,7 @@
     while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
                                  beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-	STAssertTrue( handleClientSubscriptionProcess, @"notification not caleld");
+	XCTAssertTrue( handleClientSubscriptionProcess, @"notification not caleld");
 }
 
 -(void)test30RequestParticipantsListForChannel
@@ -511,14 +511,14 @@
 		 {
 			 if( error != nil )
 				 PNLog(PNLogGeneralLevel, nil, @"error %@", error);
-			 STAssertNil( error, @"error %@", error);
+			 XCTAssertNil( error, @"error %@", error);
 			 dispatch_semaphore_signal(semaphore);
 			 NSLog(@"udids %@", udids);
 		 }];
 		while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
 			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
 									 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-		STAssertTrue(handleClientHereNowProcess, @"notification not called");
+		XCTAssertTrue(handleClientHereNowProcess, @"notification not called");
 	}
 }
 
@@ -529,12 +529,12 @@
 	[PubNub requestServerTimeTokenWithCompletionBlock:^(NSNumber *timeToken, PNError *error)
 	 {
 		 dispatch_semaphore_signal(semaphore);
-		 STAssertNil( error, @"error %@", error);
+		 XCTAssertNil( error, @"error %@", error);
 	 }];
     while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
                                  beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-	STAssertTrue(handleClientCompletedTimeTokenProcessing, @"notification not called");
+	XCTAssertTrue(handleClientCompletedTimeTokenProcessing, @"notification not called");
 }
 
 -(void)requestHistoryForChannel:(PNChannel *)channel
@@ -557,7 +557,7 @@
 									   PNError *error)
 	 {
 		 dispatch_semaphore_signal(semaphore);
-		 STAssertNil( error, @"error %@", error);
+		 XCTAssertNil( error, @"error %@", error);
 	 }];
 	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW) || handleClientMessageHistoryProcess == NO)
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
@@ -591,7 +591,7 @@
 									   {
 										   dispatch_semaphore_signal(semaphore);
 										   state = messageSendingState;
-										   STAssertFalse(messageSendingState==PNMessageSendingError, @"messageSendingState==PNMessageSendingError %@", data);
+										   XCTAssertFalse(messageSendingState==PNMessageSendingError, @"messageSendingState==PNMessageSendingError %@", data);
 										   switch (messageSendingState)
 										   {
 											   case PNMessageSending:
@@ -611,8 +611,8 @@
 		while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
 			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
 									 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-		STAssertTrue(handleClientMessageProcessingStateChange, @"notification not called");
-		STAssertTrue(handleClientDidReceiveMessage || state != PNMessageSent, @"notificaition not called");
+		XCTAssertTrue(handleClientMessageProcessingStateChange, @"notification not called");
+		XCTAssertTrue(handleClientDidReceiveMessage || state != PNMessageSent, @"notificaition not called");
 	}
 }
 
@@ -628,14 +628,14 @@
 	 {
 		 // Check whether "unsubscribeError" is nil or not (if not, than handle error)
 		 dispatch_semaphore_signal(semaphore);
-		 STAssertNil( unsubscribeError, @"unsubscribeError %@", unsubscribeError);
-		 STAssertEquals( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
+		 XCTAssertNil( unsubscribeError, @"unsubscribeError %@", unsubscribeError);
+		 XCTAssertEqual( pnChannels.count, channels.count, @"pnChannels.count %d, channels.count %d", pnChannels.count, channels.count);
 	 }];
     // Run loop
     while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
                                  beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-	STAssertTrue(handleClientUnsubscriptionProcess, @"notification not called");
+	XCTAssertTrue(handleClientUnsubscriptionProcess, @"notification not called");
 }
 
 

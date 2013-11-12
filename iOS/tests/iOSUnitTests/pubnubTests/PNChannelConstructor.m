@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 PubNub Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface PNChannelConstructor : SenTestCase
+@interface PNChannelConstructor : XCTestCase
 
 @end
 
@@ -66,7 +66,7 @@
 	for( int i=0; i<100 && isMessageSended == NO; i++ )
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
-	STAssertTrue( isMessageSended, @"message not sended");
+	XCTAssertTrue( isMessageSended, @"message not sended");
 }
 
 @end

@@ -62,14 +62,14 @@
 - (void)testMessageChannelWithDelegate {
     PNMessagingChannel *messageChannel = [PNMessagingChannel messageChannelWithDelegate:nil];
     
-    STAssertNotNil(messageChannel, @"Cannot create messageChannel");
+    XCTAssertNotNil(messageChannel, @"Cannot create messageChannel");
 }
 
 - (void)testSubscribedChannels {
     PNMessagingChannel *messageChannel = [PNMessagingChannel messageChannelWithDelegate:nil];
     
     
-    STAssertTrue([[messageChannel subscribedChannels] count] == 0, @"By default we shouldn't have subscribed channels");
+    XCTAssertTrue([[messageChannel subscribedChannels] count] == 0, @"By default we shouldn't have subscribed channels");
 }
 
 - (void)testIsSubscribedForChannel {
@@ -89,13 +89,13 @@
 - (void)testCanResubscribe {
     PNMessagingChannel *messageChannel = [PNMessagingChannel messageChannelWithDelegate:nil];
     
-    STAssertFalse([messageChannel canResubscribe], @"Cannot subscribe without any channel");
+    XCTAssertFalse([messageChannel canResubscribe], @"Cannot subscribe without any channel");
 }
 
 - (void)testUnsubscribeFromChannelsWithPresenceEvent {
     PNMessagingChannel *messageChannel = [PNMessagingChannel messageChannelWithDelegate:nil];
     
-    STAssertTrue([[messageChannel unsubscribeFromChannelsWithPresenceEvent:YES] count] == 0, @"Cannot subscribe without any channel");
+    XCTAssertTrue([[messageChannel unsubscribeFromChannelsWithPresenceEvent:YES] count] == 0, @"Cannot subscribe without any channel");
 }
 
 - (void)testIsPresenceObservationEnabledForChannel {
@@ -105,7 +105,7 @@
     
     [[mockChannel stub] presenceObserver];
     
-    STAssertFalse([messageChannel isPresenceObservationEnabledForChannel:mockChannel], @"Observeration cannot be enabled for channel if it doesn't subscribed");
+    XCTAssertFalse([messageChannel isPresenceObservationEnabledForChannel:mockChannel], @"Observeration cannot be enabled for channel if it doesn't subscribed");
     
     [mockChannel verify];
 }

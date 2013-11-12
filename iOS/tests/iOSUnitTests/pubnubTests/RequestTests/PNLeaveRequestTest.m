@@ -31,17 +31,17 @@
 #pragma mark - States tests
 
 - (void)testInitForChannels {
-    STAssertNotNil([[PNLeaveRequest  alloc] initForChannels:nil byUserRequest:NO], @"Cannot initialize request");
+    XCTAssertNotNil([[PNLeaveRequest  alloc] initForChannels:nil byUserRequest:NO], @"Cannot initialize request");
 }
 
 #pragma mark - Interaction tests
 
 - (void)testLeaveRequestForChannel {
-    STAssertNotNil([[PNLeaveRequest  alloc] initForChannels:nil byUserRequest:NO], @"Cannot leave request for channel");
+    XCTAssertNotNil([[PNLeaveRequest  alloc] initForChannels:nil byUserRequest:NO], @"Cannot leave request for channel");
 }
 
 - (void)testLeaveRequestForChannels {
-    STAssertNotNil([[PNLeaveRequest  alloc] initForChannels:nil byUserRequest:NO], @"Cannot leave request for channels");
+    XCTAssertNotNil([[PNLeaveRequest  alloc] initForChannels:nil byUserRequest:NO], @"Cannot leave request for channels");
 }
 
 

@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 PubNub Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PNBaseRequest.h"
 #import "PNBaseRequest+Protected.h"
 
@@ -19,7 +19,7 @@
 #import "PNConstants.h"
 #import "TestSemaphor.h"
 
-@interface AbbreviatedPresenceTest : SenTestCase <PNDelegate> {
+@interface AbbreviatedPresenceTest : XCTestCase <PNDelegate> {
 	int clientDidReceivePresenceEvent;
 }
 
@@ -58,7 +58,7 @@
 						 errorBlock:^(PNError *connectionError) {
 							 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
 							 dispatch_semaphore_signal(semaphore);
-							 STFail(@"connectionError %@", connectionError);
+							 XCTFail(@"connectionError %@", connectionError);
 						 }];
 	});
 	while (dispatch_semaphore_wait(semaphore, DISPATCH_TIME_NOW))
@@ -66,7 +66,7 @@
 								 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
 
 	BOOL isConnect = [[PubNub sharedInstance] isConnected];
-	STAssertTrue( isConnect, @"not connected");
+	XCTAssertTrue( isConnect, @"not connected");
 
 	__block BOOL isCompletionBlockCalled = NO;
 //	NSDate *start = [NSDate date];
@@ -83,8 +83,8 @@
 			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
 	isConnect = [PubNub sharedInstance].isConnected;
 	if( isConnect == YES )
-		STAssertTrue( isCompletionBlockCalled, @"completion block not called");
-	STAssertTrue( clientDidReceivePresenceEvent >= 2, @"clientDidReceivePresenceEvent not received (%d)", clientDidReceivePresenceEvent);
+		XCTAssertTrue( isCompletionBlockCalled, @"completion block not called");
+	XCTAssertTrue( clientDidReceivePresenceEvent >= 2, @"clientDidReceivePresenceEvent not received (%d)", clientDidReceivePresenceEvent);
 }
 
 - (void)subscribeOnChannelsByTurns
@@ -101,9 +101,9 @@
 			 [[TestSemaphor sharedInstance] lift:channelName];
 			 NSTimeInterval interval = -[start timeIntervalSinceNow];
 			 NSLog(@"subscribed %f, %@", interval, channels);
-			 STAssertTrue( interval < [PubNub sharedInstance].configuration.subscriptionRequestTimeout+1, @"Timeout error, %d instead of %d", interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout);
+			 XCTAssertTrue( interval < [PubNub sharedInstance].configuration.subscriptionRequestTimeout+1, @"Timeout error, %d instead of %d", interval, [PubNub sharedInstance].configuration.subscriptionRequestTimeout);
 
-			 STAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
+			 XCTAssertNil( subscriptionError, @"subscriptionError %@", subscriptionError);
 			 BOOL isSubscribed = NO;
 			 for( int j=0; j<channels.count; j++ ) {
 				 if( [[channels[j] name] isEqualToString: channelName] == YES ) {
@@ -111,9 +111,9 @@
 					 break;
 				 }
 			 }
-			 STAssertTrue( isSubscribed == YES, @"Channel no subecribed");
+			 XCTAssertTrue( isSubscribed == YES, @"Channel no subecribed");
 		 }];
-		STAssertTrue([[TestSemaphor sharedInstance] waitForKey: channelName timeout: [PubNub sharedInstance].configuration.subscriptionRequestTimeout+1], @"completion block not called, %@", channelName);
+		XCTAssertTrue([[TestSemaphor sharedInstance] waitForKey: channelName timeout: [PubNub sharedInstance].configuration.subscriptionRequestTimeout+1], @"completion block not called, %@", channelName);
 	}
 }
 
