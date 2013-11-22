@@ -2016,7 +2016,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
         
         // Check whether client is able to send request or not
         NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];
-        if (statusCode == 0 && error == nil) {
+        if (statusCode == 0 && error == nil && messageObject != nil) {
 
             PNLog(PNLogGeneralLevel, [self sharedInstance], @"SEND MESSAGE: %@ ON CHANNEL: %@ (STATE: %@)",
                   message, channel, [self humanReadableStateFrom:[self sharedInstance].state]);
