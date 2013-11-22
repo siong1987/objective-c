@@ -150,7 +150,14 @@
 
 + (NSString *)stringFromJSONObject:(id)object {
 
-    NSString *JSONString = nil;
+    __block NSString *JSONString = nil;
+    void(^validateObject)(NSString *) = ^(NSString *jsonString) {
+        
+        if([NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:NULL] == nil) {
+            
+            JSONString = nil;
+        }
+    };
     if (![self isJSONString:object]) {
 
         if ([self isNSJSONAvailable]) {
@@ -170,6 +177,7 @@
             else {
 
                 JSONString = [NSString stringWithFormat:@"\"%@\"", object];
+                validateObject(JSONString);
             }
         }
         else if ([self isJSONKitAvailable]) {
@@ -189,6 +197,7 @@
     else {
 
         JSONString = object;
+        validateObject(JSONString);
     }
 
 

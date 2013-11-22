@@ -84,7 +84,14 @@
             // Check whether user tried to send empty object or not
             if (!isValidMessage) {
 
-                *error = [PNError errorWithCode:kPNMessageHasNoContentError];
+                if ([object respondsToSelector:@selector(count)]) {
+                    
+                    *error = [PNError errorWithCode:kPNMessageHasNoContentError];
+                }
+                else {
+                    
+                    *error = [PNError errorWithCode:kPNInvalidJSONError];
+                }
             }
             // Looks like user didn't specified channel on which this object
             // should be sent
