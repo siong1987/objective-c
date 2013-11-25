@@ -30,7 +30,7 @@
 
 /**
  * Try to retrieve callback method name from provided
- * JSON string. If method will be fetched, than this is 
+ * JSON string. If method will be fetched, than this is
  * JSONP string.
  */
 + (void)getCallbackMethodName:(NSString **)callbackMethodName fromJSONString:(NSString *)jsonString;
@@ -129,8 +129,8 @@
              "please make sure to read 'How-to' on JSONKit addition"];
         }
     }
-
-
+    
+    
     // Checking whether parsing was successful or not
     if (result && parsingError == nil) {
         
@@ -149,21 +149,25 @@
 }
 
 + (NSString *)stringFromJSONObject:(id)object {
-
+    
     __block NSString *JSONString = nil;
-    void(^validateObject)(NSString *) = ^(NSString *jsonString) {
+    NSString *(^validateObject)(NSString *) = ^(NSString *jsonString) {
+        
+        NSString *validatedString = jsonString;
         
         if([NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:NULL] == nil) {
             
-            JSONString = nil;
+            validatedString = nil;
         }
+        
+        return validatedString;
     };
     if (![self isJSONString:object]) {
-
+        
         if ([self isNSJSONAvailable]) {
-
+            
             if ([object isKindOfClass:[NSArray class]] || [object isKindOfClass:[NSDictionary class]]) {
-
+                
                 NSError *serializationError = nil;
                 NSData *JSONSerializedObject = [NSJSONSerialization dataWithJSONObject:object
                                                                                options:(NSJSONWritingOptions)0
@@ -171,13 +175,13 @@
                 JSONString = [[NSString alloc] initWithData:JSONSerializedObject encoding:NSUTF8StringEncoding];
             }
             else if ([object isKindOfClass:[NSNumber class]]) {
-
+                
                 JSONString = [(NSNumber *)object stringValue];
             }
             else {
-
+                
                 JSONString = [NSString stringWithFormat:@"\"%@\"", object];
-                validateObject(JSONString);
+                JSONString = validateObject([NSString stringWithFormat:@"[%@]", JSONString]) ? JSONString : nil;
             }
         }
         else if ([self isJSONKitAvailable]) {
@@ -188,38 +192,38 @@
 #pragma clang diagnostic pop
         }
         else {
-
+            
             [NSException raise:@"JSON serialization library"
                         format:@"There is no JSON serialization library available. If you are targeting 4.3+ versions, "
-                                "please make sure to read 'How-to' on JSONKit addition"];
+             "please make sure to read 'How-to' on JSONKit addition"];
         }
     }
     else {
-
+        
         JSONString = object;
-        validateObject(JSONString);
+        JSONString = validateObject([NSString stringWithFormat:@"[%@]", JSONString]) ? JSONString : nil;
     }
-
-
+    
+    
     return JSONString;
 }
 
 + (void)getCallbackMethodName:(NSString **)callbackMethodName fromJSONString:(NSString *)jsonString {
-
+    
     if (jsonString) {
-
+        
         // Checking whether there are parenthesis in JSON
         NSRange parenthesisRange = [jsonString rangeOfString:@"("];
         if (parenthesisRange.location != NSNotFound &&
-                ([jsonString characterAtIndex:(parenthesisRange.location+parenthesisRange.length)] == '[' ||
-                        [jsonString characterAtIndex:(parenthesisRange.location+parenthesisRange.length)] == '{')) {
-
-            NSScanner *scanner = [NSScanner scannerWithString:jsonString];
-            [scanner scanUpToString:@"(" intoString:callbackMethodName];
-        }
+            ([jsonString characterAtIndex:(parenthesisRange.location+parenthesisRange.length)] == '[' ||
+             [jsonString characterAtIndex:(parenthesisRange.location+parenthesisRange.length)] == '{')) {
+                
+                NSScanner *scanner = [NSScanner scannerWithString:jsonString];
+                [scanner scanUpToString:@"(" intoString:callbackMethodName];
+            }
     }
     else {
-
+        
         PNLog(PNLogGeneralLevel, self, @"JSON string is empty");
     }
 }
@@ -241,19 +245,19 @@
 #pragma mark - Misc methods
 
 + (BOOL)isJSONString:(id)object {
-
+    
     BOOL isJSONString = [object isKindOfClass:[NSNumber class]];
     if ([object isKindOfClass:[NSString class]] && [(NSString *)object length] > 0) {
-
+        
         unichar nodeStartChar = [(NSString *)object characterAtIndex:0];
         unichar nodeClosingChar = [(NSString *)object characterAtIndex:([(NSString *)object length] - 1)];
         isJSONString = nodeStartChar == '"' || nodeStartChar == '[' || nodeStartChar == '{';
         if (isJSONString) {
-
+            
             isJSONString = nodeClosingChar == '"' || nodeClosingChar == ']' || nodeClosingChar == '}';
         }
     }
-
+    
     return isJSONString;
 }
 
@@ -273,15 +277,15 @@
 }
 
 + (BOOL)isNSJSONAvailable {
-
+    
     static BOOL isNSJSONAvailable;
     static dispatch_once_t isNSJSONAvailableToken;
     dispatch_once(&isNSJSONAvailableToken, ^{
-
+        
         isNSJSONAvailable = NSClassFromString(@"NSJSONSerialization") != nil;
     });
-
-
+    
+    
     return isNSJSONAvailable;
 }
 
@@ -294,7 +298,7 @@
         isJSONKitAvailable = [@"" respondsToSelector:NSSelectorFromString(@"JSONString")];
     });
     
-
+    
     return isJSONKitAvailable;
 }
 
