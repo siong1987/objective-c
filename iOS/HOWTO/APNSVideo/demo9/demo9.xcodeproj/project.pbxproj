@@ -59,6 +59,7 @@
 		962FA12D17BF479C00141E23 /* PNServiceChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 962FA0F217BF479C00141E23 /* PNServiceChannel.m */; };
 		962FA12E17BF479C00141E23 /* PNConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 962FA0F617BF479C00141E23 /* PNConnection.m */; };
 		962FA12F17BF479C00141E23 /* PNConnectionChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 962FA0F917BF479C00141E23 /* PNConnectionChannel.m */; };
+		A71C92E51851710C0039B5EC /* airb22.jpg in Resources */ = {isa = PBXBuildFile; fileRef = A71C92E41851710C0039B5EC /* airb22.jpg */; };
 		A7E42835173AFA82000E5EE6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7E42834173AFA82000E5EE6 /* UIKit.framework */; };
 		A7E42837173AFA82000E5EE6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7E42836173AFA82000E5EE6 /* Foundation.framework */; };
 		A7E42839173AFA82000E5EE6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7E42838173AFA82000E5EE6 /* CoreGraphics.framework */; };
@@ -221,6 +222,7 @@
 		962FA0F717BF479C00141E23 /* PNConnectionChannel+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PNConnectionChannel+Protected.h"; sourceTree = "<group>"; };
 		962FA0F817BF479C00141E23 /* PNConnectionChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNConnectionChannel.h; sourceTree = "<group>"; };
 		962FA0F917BF479C00141E23 /* PNConnectionChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNConnectionChannel.m; sourceTree = "<group>"; };
+		A71C92E41851710C0039B5EC /* airb22.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = airb22.jpg; sourceTree = "<group>"; };
 		A7E42831173AFA82000E5EE6 /* demo9.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = demo9.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7E42834173AFA82000E5EE6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A7E42836173AFA82000E5EE6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -570,6 +572,7 @@
 		A7E4283B173AFA82000E5EE6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				A71C92E41851710C0039B5EC /* airb22.jpg */,
 				A7E4283C173AFA82000E5EE6 /* demo9-Info.plist */,
 				A7E4283D173AFA82000E5EE6 /* InfoPlist.strings */,
 				A7E42840173AFA82000E5EE6 /* main.m */,
@@ -609,6 +612,11 @@
 			attributes = {
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = "geremy cohen";
+				TargetAttributes = {
+					A7E42830173AFA82000E5EE6 = {
+						DevelopmentTeam = Y9X42V6EK7;
+					};
+				};
 			};
 			buildConfigurationList = A7E4282C173AFA82000E5EE6 /* Build configuration list for PBXProject "demo9" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -632,6 +640,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A71C92E51851710C0039B5EC /* airb22.jpg in Resources */,
 				A7E4283F173AFA82000E5EE6 /* InfoPlist.strings in Resources */,
 				A7E42847173AFA82000E5EE6 /* Default.png in Resources */,
 				A7E42849173AFA82000E5EE6 /* Default@2x.png in Resources */,
@@ -786,10 +795,13 @@
 		A7E42855173AFA82000E5EE6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "demo9/demo9-Prefix.pch";
 				INFOPLIST_FILE = "demo9/demo9-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -797,10 +809,13 @@
 		A7E42856173AFA82000E5EE6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "demo9/demo9-Prefix.pch";
 				INFOPLIST_FILE = "demo9/demo9-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
