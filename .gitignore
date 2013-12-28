@@ -1,24 +1,3 @@
-# Xcode life-time folders #
-###########################
-build
-DerivedData
-
-# Xcode user bound files and folders #
-######################################
-allwomenstalk/libs/SDWebImage/*.xcodeproj/xcuserdata
-*.xcodeproj/project.xcworkspace/xcuserdata
-*.xcodeproj/xcuserdata
-*.xcodeproj/*.pbxuser
-*.xcodeproj/*.perspectivev3
-
-# OS generated files #
-######################
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-Icon?
-ehthumbs.db
-Thumbs.db
-.idea/
+# Jekyll static ignore #
+_site
+_site/*
