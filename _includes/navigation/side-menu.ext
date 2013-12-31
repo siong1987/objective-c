@@ -2,7 +2,7 @@
 	<div id="navigation" class="well" style="position: absolute; top: 20px, bottom: auto; display: block;">
 		<div class="dropdown"></div>
 		<ul class="{{ site.data.information.sdk.language | downcase }} active">
-			<li class="overview"><a href="somewhere">Overview</a></li>
+			<li class="overview {% if page.tags | contains: 'overview' %}active{% endif %}"><a href="somewhere">Overview</a></li>
 			<li class="tutorials"><a href="somewhere">Tutorials</a></li>
 			<li class="api"><a href="somewhere">API</a></li>
 		</ul>

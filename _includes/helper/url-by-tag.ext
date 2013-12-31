@@ -1,0 +1,3 @@
+{% for page in site.pages %}
+  {{page.title}} - {{page.tags}} - [{{page.url}}] - {{ "side-menu.ext" | asset_url }}
+{% endfor %}
