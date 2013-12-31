@@ -1,0 +1,5 @@
+{% assign sectionLink = {{include.title | downcase | replace: ' ', '-'}} %}
+{% if include.link %}
+  {% assign sectionLink = include.link %}
+{% endif %}
+<div class="sectionbody">{% if include.title && include.headerSize %}<h{{include.headerSize}}><a name="{{sectionLink}}" class="link" href="#{{sectionLink}}">{{include.title}}</a></h{{include.headerSize}}>{% endif%}

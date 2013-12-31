@@ -1,0 +1,9 @@
+{% assign language = site.data.information.syntax %}
+{% if include.language %}
+	{% assign language = include.language %}
+{% endif %}
+{% if include.title %}
+<div class="listingblock"><div class="title">{{include.title}}</div><div class="content"><pre class="prettyprint {{language}} language-{{language}}"><code>
+{% else %}
+<div class="listingblock"><div class="content"><pre class="prettyprint {{language}} language-{{language}} nowrap"><code>
+{% endif %}

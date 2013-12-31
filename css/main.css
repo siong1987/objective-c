@@ -13,8 +13,8 @@
 html, body { height: 100%; }
 
 body {
-  background-color: #FFF;
-  font: 13.34px Helvetica, Arial, sans-serif;
+  background-color: #f9f9f9;
+  font: 18px proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: small;
   text-align: center;
 }
@@ -25,9 +25,9 @@ h1, h2, h3, h4, h5, h6 {
 h1 { margin-bottom: 1em; }
 p { margin: 1em 0; }
 
-a         { color: #00a; }
-a:hover   { color: #000; }
-a:visited { color: #a0a; }
+a         { color: #3394bf; }
+a:hover   { color: #777777; }
+/*a:visited { color: #3394bf; }*/
 
 /*****************************************************************************/
 /*

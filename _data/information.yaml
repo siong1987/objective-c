@@ -1,0 +1,157 @@
+syntax: objective-c
+
+sdk:
+  language: Objective-C
+  version: 3.5.3
+  library_logo_image: http://tapbits.com/blog/wp-content/uploads/2010/07/36141-500.png
+  sources:
+    download_url: https://github.com/pubnub/objective-c/archive/master.zip
+    repository: https://github.com/pubnub/objective-c
+    repository_clone: https://github.com/pubnub/objective-c.git
+    changelog: https://github.com/pubnub/objective-c/blob/master/iOS/CHANGELOG
+    license: https://github.com/pubnub/objective-c/blob/master/iOS/LICENSE
+
+resources:
+  general:
+    - name: SDK Home
+      url: http://www.pubnub.com/developers
+      icon: github
+      order: 1
+
+    - name: Tutorials
+      url: http://www.pubnub.com/docs/javascript/tutorial/data-push.html
+      icon: chevron-right
+      order: 2
+
+    - name: Feature Overview
+      url: http://www.pubnub.com/docs/javascript/tutorial/data-push.html
+      icon: chevron-right
+      order: 3
+
+    - name: API Reference
+      url: http://www.pubnub.com/docs/javascript/api/reference.html
+      icon: chevron-right
+      order: 4
+
+    - name: API Copy & Paste Examples
+      url: http://www.pubnub.com/docs/javascript/api/quick-reference.html
+      icon: chevron-right
+      order: 5
+  sources:
+    - name: Examples
+      url: https://github.com/pubnub/javascript/tree/master/examples
+      icon: code
+      order: 1
+
+    - name: Videos
+      url: https://vimeo.com/search?q=pubnub+javascript
+      icon: play
+      order: 2
+
+    - name: Blogs
+      url: http://www.pubnub.com/blog/category/javascript/
+      icon: rss
+      order: 3
+
+    - name: FAQs
+      url: https://help.pubnub.com/forums/20861397-HTML-JavaScript
+      icon: search
+      order: 4
+
+
+family:
+  - name: pubnub html5 sdk
+    icon_url: http://www.pubnub.com/docs/img/html5.png
+    icon_width: 30
+    icon_heigh: 30
+    repository: https://github.com/pubnub/javascript/tree/master/modern
+    description: |
+      **Modern**: is a light-weight build with support for only the **latest Browsers**. The `modern` library is CommonJS and HTML5 WebWorker ready and is lighting fast.
+
+  - name: pubnub smart-tv sdk
+    icon_url: http://www.pubnub.com/docs/img/smart-tv.jpeg
+    icon_heigh: 40
+    icon_width: 40
+    repository: https://github.com/pubnub/javascript/tree/master/smart-tv
+    description: |
+      **Smart-TV**: provides real-time support for smart televisions platforms such as LG, Philips, Samsung, Sony, Westinghouse and Vizio.
+
+  - name: pubnub titanium sdk
+    icon_url: http://www.pubnub.com/docs/img/titanium.png
+    icon_heigh: 50
+    icon_width: 50
+    repository: https://github.com/pubnub/javascript/tree/master/titanium
+    description: |
+      **Titanium**: provides real-time support for the Appcelerator Titanium platform for mobile, desktop and web technologies.
+
+  - name: pubnub phonegap sdk
+    icon_url: http://www.pubnub.com/docs/img/phonegap.jpeg
+    icon_heigh: 50
+    icon_width: 50
+    repository: https://github.com/pubnub/javascript/tree/master/phonegap
+    description: |
+      **Phone Gap**: Build real-time apps with platform support for mobile devices that utilize JavaScript, HTML5 and CSS3.
+
+  - name: pubnub webrtc sdk
+    icon_url: http://www.pubnub.com/docs/img/webrtc.png
+    icon_heigh: 70
+    icon_width: 70
+    repository: https://github.com/pubnub/webrtc
+    description: |
+      **WebRTC**: Our WebRTC API will perform signaling between your users to allow them to connect with a RTCPeerConnection. From there you can use the PubNub API to enhance your peer application with features such as presence and history. PubNub Presence will allow you to find what users are connected to your application and give you a phonebook of people to connect to. You can also use history to see what connections you have made and reconnect to people from the past.
+
+  - name: pubnub nodejs sdk
+    icon_url: http://www.pubnub.com/docs/img/nodejs.png
+    icon_heigh: 60
+    icon_width: 100
+    repository: https://github.com/pubnub/javascript/tree/master/node.js
+    description: |
+      **Node.JS**: build (CommonJS) server-side real-time applications.
+
+  - name: pubnub socketio sdk
+    icon_url: http://www.pubnub.com/docs/img/socketio.png
+    icon_heigh: 70
+    icon_width: 70
+    repository: https://github.com/pubnub/javascript/tree/master/socket.io
+    description: |
+      **Socket.IO**: We enhanced Socket.IO with PubNub. Faster JavaScript, Smaller Footprint, Faster Cloud Network and Socket.IO with PubNub. This library does not require a Node.JS back-end. This means your code is lean and simple giving you extra time to build your app. The updated JS payload has been optimized for Mobile Apps; which means excellent performance for laptops too.
+
+  - name: pubnub sencha sdk
+    icon_url: http://www.pubnub.com/docs/img/sencha.png
+    icon_heigh: 60
+    icon_width: 60
+    repository: https://github.com/pubnub/javascript/tree/master/sencha
+    description: |
+      **Sencha**: Sencha provides an HTML5 product suite that provides mobile developers with the frameworks and tools they need to build touch-based apps in a single, integrated package. Now totally real-time with PubNub.
+
+  - name: pubnub webos sdk
+    icon_url: http://www.pubnub.com/docs/img/webos.jpeg
+    icon_heigh: 60
+    icon_width: 60
+    repository: https://github.com/pubnub/javascript/tree/master/webos
+    description: |
+      **WebOS**: provides real-time support for smart TVs and mobile devices running Open WebOS.
+
+  - name: pubnub impactjs sdk
+    icon_url: http://www.pubnub.com/docs/img/impactjs.png
+    icon_heigh: 60
+    icon_width: 60
+    repository: https://github.com/pubnub/pubnub-api/tree/master/games/ImpactJS
+    description: |
+      **Impact.JS**: The Awesomest Way to Create Even More Awesome HTML5 Games just became the MOST Awesomest with the addition of our PubNub client for Impactjs.
+
+  - name: pubnub monkey sdk
+    icon_url: http://www.pubnub.com/docs/img/monkey.png
+    icon_heigh: 60
+    icon_width: 60
+    repository: https://github.com/pubnub/pubnub-api/tree/master/monkey
+    description: |
+      **Monkey**: Build real-time next-generation games programming on multiple platforms with the greatest of ease. Monkey games can be run on potentially hundreds of different devices - including mobile phones, tablets, desktop computers and even videogame consoles.
+
+  - name: pubnub qooxdoo sdk
+    icon_url: http://www.pubnub.com/docs/img/qooxdoo.jpeg
+    icon_heigh: 60
+    icon_width: 60
+    repository: https://github.com/pubnub/pubnub-api/tree/master/qooxdo
+    description: |
+      **Qooxdoo**: With our qooxdoo client you can build real-time, interactive applications, native-like apps for mobile devices, light-weight single-page oriented web applications or even applications to run outside the browser.

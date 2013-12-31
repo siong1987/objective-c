@@ -1,0 +1,9 @@
+{% include elements/paragraph-open.ext %}
+{% capture sdkFullName %}PubNub {{site.data.information.sdk.language}} SDK{% endcapture %}
+{% capture sdkDownloadURL %}{{site.data.information.sdk.sources.download_url}}{% endcapture %}<p></p><p>
+{% include elements/icon.ext icon="download" %} {% include elements/link.ext title=sdkFullName url=sdkDownloadURL %}<br>
+{% include elements/icon.ext icon="github" %} You can <code>git clone</code> the {{sdkFullName}} repository with following command:</p>
+{% capture cloneBlock %}
+{% include code/block-open.ext language="shell" %}git clone {{site.data.information.sdk.sources.repository_clone}}{% include code/block-close.ext %}
+{% endcapture %}
+{{ cloneBlock | markdownify | strip_newlines }}{% include elements/paragraph-close.ext %}

@@ -1,3 +1,6 @@
 # Jekyll static ignore #
 _site
 _site/*
+
+# Gem files ignore #
+Gemfile.lock
