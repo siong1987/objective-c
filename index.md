@@ -48,4 +48,4 @@ You should add next frameworks and libraries to your Xcode project: `CFNetwork.F
 {% include elements/section-close.ext %}
 {% include helper/url-by-tag.ext %}
 
-{{ 'main.css' | asset_url }}
+{{site.baseurl}}{{ 'main.css' | asset_url }}

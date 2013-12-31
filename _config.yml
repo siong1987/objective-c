@@ -1,3 +1,4 @@
 name: PubNub Objective-C SDK
 markdown: redcarpet
 pygments: true
+baseurl: http://pubnub.github.io/objective-c/
