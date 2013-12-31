@@ -7,7 +7,7 @@
           <ul class="nav pull-right">
             <li><a href="/examples/">Examples</a></li>
             <li><a href="/api/">API Reference</a></li>
-            <li><a href="/" {% if page.tags | contains: 'overview' %}class="active"{% endif %}>Overview</a></li>
+            <li><a href="{% include helper/url-by-tag.ext tag="overview" %}" {% if page.tags | contains: 'overview' %}class="active"{% endif %}>Overview</a></li>
           </ul>
         </nav>
       </div>

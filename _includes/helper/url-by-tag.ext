@@ -1,3 +1,7 @@
+{% assign page_url = site.baseurl %}
 {% for page in site.pages %}
-  {{page.title}} - {{page.tags}} - [{{page.url}}] - {{ "side-menu.ext" | asset_url }}
+  {% if page.tags contains include.tag %}
+    {% assign page_url = {{ page_url | append: page.url | replace: 'index.html', '' }} %}
+  {% endif %}
 {% endfor %}
+{{page_url}}
