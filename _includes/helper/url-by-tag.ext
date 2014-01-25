@@ -1,7 +1,0 @@
-{% assign page_url = site.baseurl %}
-{% for page in site.pages %}
-  {% if page.tags contains include.tag %}
-    {% assign page_url = {{ page_url | append: page.url | replace: 'index.html', '' }} %}
-  {% endif %}
-{% endfor %}
-{{page_url}}

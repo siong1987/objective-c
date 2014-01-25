@@ -1,2 +1,0 @@
-{% assign icon = include.icon %}
-<span class="icon"><i class="fa fa-{{icon}} fa-2x"></i></span>
