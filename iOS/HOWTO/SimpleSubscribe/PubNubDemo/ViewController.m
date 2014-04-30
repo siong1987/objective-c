@@ -36,35 +36,11 @@
 
                                                          }];
 
-    [[PNObservationCenter defaultCenter] addPresenceEventObserver:self withBlock:^(PNPresenceEvent *event) {
-
-        NSString *eventString;
-        if (event.type == PNPresenceEventJoin) {
-            eventString = @"Join";
-        } else
-        if (event.type == PNPresenceEventLeave) {
-            eventString = @"Leave";
-        } else
-        if (event.type == PNPresenceEventTimeout) {
-            eventString = @"Timeout";
-        }
-
-        eventString = [NSString stringWithFormat:@"%@ : %@", event.client.identifier, eventString];
-
-        [presenceView setText:[eventString stringByAppendingFormat:@"\n%@\n", presenceView.text]];
-
-
-
-    }];
-
-
     PNConfiguration *myConfig = [PNConfiguration configurationForOrigin:@"pubsub.pubnub.com"  publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"];
 
     // Set the presence heartbeat to 5s
-    myConfig.presenceHeartbeatTimeout = 5;
 
     [PubNub setConfiguration:myConfig];
-
     [PubNub connectWithSuccessBlock:^(NSString *origin) {
 
         PNLog(PNLogGeneralLevel, self, @"{BLOCK} PubNub client connected to: %@", origin);
@@ -73,23 +49,23 @@
         int64_t delayInSeconds = 1.0;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
 
-            NSMutableDictionary *currentState = [[NSMutableDictionary alloc] init];
-            NSMutableDictionary *zzState = [[NSMutableDictionary alloc] init];
-
             // then subscribe on channel zz
-            PNChannel *myChannel = [PNChannel channelWithName:@"a" shouldObservePresence:YES];
+            PNChannel *ch1 = [PNChannel channelWithName:@"x" shouldObservePresence:YES];
+            PNChannel *ch2 = [PNChannel channelWithName:@"y" shouldObservePresence:YES];
+            PNChannel *ch3 = [PNChannel channelWithName:@"a" shouldObservePresence:YES];
 
-
-            [zzState setObject:@"demo app started" forKey:@"appEvent"];
-            [currentState setObject:zzState forKey:@"a"];
-
-
-            [PubNub subscribeOnChannel:myChannel withClientState:currentState];
+            [PubNub subscribeOnChannels:[NSArray arrayWithObjects:ch1,ch2,'\0'] withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
+                NSLog(@"Subscribed to ch1,ch2");
+            }];
 
             int64_t delayInSeconds = 5.0;
             dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
                 // grab global occupancy list 5s later
-                [PubNub requestParticipantsListWithClientIdentifiers:NO clientState:YES];
+
+                [PubNub subscribeOnChannel:ch3 withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
+                    NSLog(@"Subscribed to ch3");
+                }];
+
 
             });
 
