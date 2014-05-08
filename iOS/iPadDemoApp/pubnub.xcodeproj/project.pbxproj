@@ -520,6 +520,7 @@
 		79D938BC18BD20C4004622D7 /* PNMainViewController~ipad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "PNMainViewController~ipad.xib"; sourceTree = "<group>"; };
 		79D938C418BD5D11004622D7 /* PNNavigationMenuDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PNNavigationMenuDelegate.h; sourceTree = "<group>"; };
 		79D938C518BF6D59004622D7 /* PNDemoAppStructures.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PNDemoAppStructures.h; sourceTree = "<group>"; };
+		79DA456D191C376A005641CC /* PNDemoApplicationConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PNDemoApplicationConstants.h; sourceTree = "<group>"; };
 		79DA9A3616AC0DC1000AE3A1 /* PNIdentificationViewController~ipad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "PNIdentificationViewController~ipad.xib"; sourceTree = "<group>"; };
 		79DA9A5216AC101D000AE3A1 /* red-button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "red-button.png"; sourceTree = "<group>"; };
 		79DA9A5916AC1172000AE3A1 /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
@@ -1116,6 +1117,7 @@
 				DD71B229C9F2B05485DD70FB /* Categories */,
 				DD71BBC7207EC10A87EDB107 /* Delegates */,
 				79D938C518BF6D59004622D7 /* PNDemoAppStructures.h */,
+				79DA456D191C376A005641CC /* PNDemoApplicationConstants.h */,
 			);
 			path = Misc;
 			sourceTree = "<group>";

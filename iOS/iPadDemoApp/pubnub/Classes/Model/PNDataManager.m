@@ -9,6 +9,7 @@
 
 #import "PNDataManager.h"
 #import "PNPresenceEvent+Protected.h"
+#import "PNDemoApplicationConstants.h"
 #import "PNMessage+Protected.h"
 #import "PNChannel+Protected.h"
 #import "PNClient.h"
@@ -113,9 +114,31 @@ static PNDataManager *_sharedInstance = nil;
 
                      messages = @"";
                  }
-                 messages = [messages stringByAppendingFormat:@"<%@> %@\n",
-                                 [dateFormatter stringFromDate:message.receiveDate.date],
-                                 message.message];
+                 messages = [messages stringByAppendingFormat:@"<%@> %@\n", [dateFormatter stringFromDate:message.receiveDate.date],
+                             message.message];
+                 NSArray *messageLines = [messages componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+                 if ([messageLines count] > kPNDemoApplicationMaximumConsoleEntries) {
+                     
+                     __block NSUInteger countedEntries = 0;
+                     __block NSUInteger allowedEntriesLength = 0;
+                     [messageLines enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSString *entry,
+                                                                                                 NSUInteger entryIdx,
+                                                                                                 BOOL *entryEnumeratorStop) {
+                         if (entry.length) {
+                             
+                             countedEntries++;
+                             allowedEntriesLength+= entry.length + 1;
+                             *entryEnumeratorStop = (countedEntries >= kPNDemoApplicationMaximumConsoleEntries);
+                         }
+                     }];
+                     
+                     if (allowedEntriesLength > 0) {
+                         
+                         NSRange targetMessageRange = (NSRange){.location = (messages.length - allowedEntriesLength),
+                                                                             .length = allowedEntriesLength};
+                         messages = [messages substringWithRange:targetMessageRange];
+                     }
+                 }
                  [weakSelf.messages setValue:messages forKey:channel.name];
 
 

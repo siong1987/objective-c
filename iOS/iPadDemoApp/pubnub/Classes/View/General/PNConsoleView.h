@@ -14,6 +14,11 @@
 @interface PNConsoleView : UITextView
 
 
+#pragma mark - Properties
+
+@property (nonatomic, assign) NSUInteger maximumNumberOfLines;
+
+
 #pragma mark - Instance methods
 
 /**

@@ -7,9 +7,10 @@
 //
 
 #import "PNConsoleView.h"
+#import "PNDemoApplicationConstants.h"
 
 
-#pragma mark Private interface declaration
+#pragma mark - Private interface declaration
 
 @interface PNConsoleView ()
 
@@ -33,6 +34,11 @@
  @return Formatted string which will be shown in console.
  */
 - (NSAttributedString *)attributedStringFrom:(NSString *)string;
+
+/**
+ Cut input attribute string to maximum number of lines.
+ */
+- (NSAttributedString *)cuttedStringFrom:(NSAttributedString *)attributedString;
 
 /**
  Method which will modify attributes inside provided string for all presence events.
@@ -110,6 +116,7 @@
     // Forward method call to the super class.
     [super awakeFromNib];
     
+    self.maximumNumberOfLines = kPNDemoApplicationMaximumConsoleEntries;
     self.stringForLayout = [NSMutableAttributedString new];
 }
 
@@ -120,7 +127,13 @@
     if ([consoleOutput length]) {
         
         [self.stringForLayout appendAttributedString:[self attributedStringFrom:consoleOutput]];
+        NSAttributedString *cuttedString = [self cuttedStringFrom:self.stringForLayout];
+        if ([cuttedString string].length != [self.stringForLayout string].length) {
+            
+            [self.stringForLayout setAttributedString:cuttedString];
+        }
     }
+    
     self.attributedText = self.stringForLayout;
 }
 
@@ -129,6 +142,11 @@
     if ([consoleOutput length]) {
         
         [self.stringForLayout appendAttributedString:[self attributedStringFrom:consoleOutput]];
+        NSAttributedString *cuttedString = [self cuttedStringFrom:self.stringForLayout];
+        if ([cuttedString string].length != [self.stringForLayout string].length) {
+            
+            [self.stringForLayout setAttributedString:cuttedString];
+        }
     }
     self.attributedText = self.stringForLayout;
 }
@@ -143,6 +161,37 @@
     
     
     return attributedString;
+}
+
+- (NSAttributedString *)cuttedStringFrom:(NSAttributedString *)attributedString {
+    
+    NSAttributedString *cuttedString = attributedString;
+    NSArray *consoleEntryLines = [[cuttedString string] componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    if ([consoleEntryLines count] > self.maximumNumberOfLines) {
+        
+        __block NSUInteger countedEntries = 0;
+        __block NSUInteger allowedEntriesLength = 0;
+        [consoleEntryLines enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSString *entry,
+                                                                                         NSUInteger entryIdx,
+                                                                                         BOOL *entryEnumeratorStop) {
+            if (entry.length) {
+                
+                countedEntries++;
+                allowedEntriesLength+= entry.length + 1;
+                *entryEnumeratorStop = (countedEntries >= self.maximumNumberOfLines);
+            }
+        }];
+        
+        if (allowedEntriesLength > 0) {
+            
+            NSRange targetConsoleOutputRange = (NSRange){.location = ([cuttedString string].length - allowedEntriesLength),
+                .length = allowedEntriesLength};
+            cuttedString = [cuttedString attributedSubstringFromRange:targetConsoleOutputRange];
+        }
+    }
+    
+    
+    return cuttedString;
 }
 
 - (void)formatPresenceEventsIn:(NSMutableAttributedString *)attributedString {
