@@ -208,7 +208,7 @@ static NSMutableArray *pendingInvocations = nil;
 #pragma mark - Messages processing methods
 
 + (void)postponeSendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
-        withCompletionBlock:(PNClientMessageProcessingBlock)success;
+             storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success;
 
 
 #pragma mark - History methods
@@ -3079,40 +3079,64 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel {
     
-    return [self sendMessage:message toChannel:channel compressed:NO];
+    return [self sendMessage:message toChannel:channel storeInHistory:YES];
+}
+
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message toChannel:channel compressed:NO storeInHistory:shouldStoreInHistory];
 }
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage {
     
-    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage withCompletionBlock:nil];
+    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:YES];
+}
+
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
+         withCompletionBlock:nil];
 }
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
-    return [self sendMessage:message toChannel:channel compressed:NO withCompletionBlock:success];
+    return [self sendMessage:message toChannel:channel compressed:NO storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel storeInHistory:(BOOL)shouldStoreInHistory
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message toChannel:channel compressed:NO storeInHistory:shouldStoreInHistory withCompletionBlock:success];
 }
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
        withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:YES withCompletionBlock:success];
+}
 
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
     [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
-
+        
         return [NSString stringWithFormat:@"TRYING TO SEND MESSAGE: %@ ON CHANNEL: %@ (STATE: %@)",
                 message, channel, [self humanReadableStateFrom:[self sharedInstance].state]];
     }];
     
     // Create object instance
     PNError *error = nil;
-    PNMessage *messageObject = [PNMessage messageWithObject:message forChannel:channel compressed:shouldCompressMessage error:&error];
+    PNMessage *messageObject = [PNMessage messageWithObject:message forChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
+                                                      error:&error];
     
     [self performAsyncLockingBlock:^{
         
         // Check whether client is able to send request or not
         NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];
         if (statusCode == 0 && error == nil) {
-
+            
             [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
-
+                
                 return [NSString stringWithFormat:@"SEND MESSAGE: %@ ON CHANNEL: %@ (STATE: %@)",
                         message, channel, [self humanReadableStateFrom:[self sharedInstance].state]];
             }];
@@ -3127,9 +3151,9 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
         }
         // Looks like client can't send request because of some reasons
         else {
-
+            
             [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
-
+                
                 return [NSString stringWithFormat:@"CAN'T SEND MESSAGE: %@ ON CHANNEL: %@ (STATE: %@)",
                         message, channel, [self humanReadableStateFrom:[self sharedInstance].state]];
             }];
@@ -3147,14 +3171,15 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
         }
     }
            postponedExecutionBlock:^{
-
+               
                [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
-
+                   
                    return [NSString stringWithFormat:@"POSTPONE MESSAGE SENDING (STATE: %@)",
                            [self humanReadableStateFrom:[self sharedInstance].state]];
                }];
                
-               [self postponeSendMessage:message toChannel:channel compressed:shouldCompressMessage withCompletionBlock:(success ? [success copy] : nil)];
+               [self postponeSendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
+                     withCompletionBlock:(success ? [success copy] : nil)];
            }];
     
     
@@ -3162,32 +3187,55 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 }
 
 + (void)postponeSendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
-        withCompletionBlock:(PNClientMessageProcessingBlock)success {
+             storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
-    [[self sharedInstance] postponeSelector:@selector(sendMessage:toChannel:compressed:withCompletionBlock:)
+    [[self sharedInstance] postponeSelector:@selector(sendMessage:toChannel:compressed:storeInHistory:withCompletionBlock:)
                                   forObject:self
-                             withParameters:@[[PNHelper nilifyIfNotSet:message], [PNHelper nilifyIfNotSet:channel], @(shouldCompressMessage), [PNHelper nilifyIfNotSet:(id)success]]
+                             withParameters:@[[PNHelper nilifyIfNotSet:message], [PNHelper nilifyIfNotSet:channel], @(shouldCompressMessage),
+                                              @(shouldStoreInHistory), [PNHelper nilifyIfNotSet:(id)success]]
                                  outOfOrder:NO];
 }
 
 + (void)sendMessage:(PNMessage *)message {
     
-    [self sendMessage:message compressed:NO];
+    [self sendMessage:message storeInHistory:YES];
+}
+
++ (void)sendMessage:(PNMessage *)message storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    [self sendMessage:message compressed:NO storeInHistory:shouldStoreInHistory];
 }
 
 + (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage {
     
-    [self sendMessage:message.message toChannel:message.channel compressed:shouldCompressMessage withCompletionBlock:nil];
+    [self sendMessage:message compressed:shouldCompressMessage storeInHistory:YES];
+}
+
++ (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    [self sendMessage:message compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
 }
 
 + (void)sendMessage:(PNMessage *)message withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
-    [self sendMessage:message.message compressed:NO withCompletionBlock:success];
+    [self sendMessage:message storeInHistory:YES withCompletionBlock:success];
+}
+
++ (void)sendMessage:(PNMessage *)message storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    [self sendMessage:message compressed:NO storeInHistory:shouldStoreInHistory withCompletionBlock:success];
 }
 
 + (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
-    [self sendMessage:message.message toChannel:message.channel compressed:shouldCompressMessage withCompletionBlock:success];
+    [self sendMessage:message compressed:shouldCompressMessage storeInHistory:YES withCompletionBlock:success];
+}
+
++ (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory
+withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    [self sendMessage:message.message toChannel:message.channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
+  withCompletionBlock:success];
 }
 
 

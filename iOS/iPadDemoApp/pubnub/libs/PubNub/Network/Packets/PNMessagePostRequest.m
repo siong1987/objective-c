@@ -171,6 +171,12 @@
     
     [resourcePath appendFormat:@"?uuid=%@%@", self.clientIdentifier,
                                ([self authorizationField] ? [NSString stringWithFormat:@"&%@", [self authorizationField]] : @"")];
+    
+    if (!self.message.shouldStoreInHistory) {
+        
+        [resourcePath appendString:@"&store=0"];
+    }
+    
 
     return resourcePath;
 }
