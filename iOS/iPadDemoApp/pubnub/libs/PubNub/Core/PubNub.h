@@ -8773,6 +8773,530 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel;
 
 /**
+ Same as +sendMessage:toChannel: but allow to specify completion block which will be called when message will be sent or in case of error.
+ 
+ Only last call of this method will call completion block. If you need to track message sending from many places, use PNObservationCenter methods
+ for this purpose.
+ */
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel withCompletionBlock:(PNClientMessageProcessingBlock)success;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:toChannel: and allow to specify separate payload which will be sent along with message using APNS.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ applePushNotification:@{@"aps":@{@"alert":@"Someone sent array of strings"}} 
+           toChannel:[PNChannel channelWithName:@"iosdev"]];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param apnsPayload
+ Valid APNS payload dictionary which should be delivered using push service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:applePushNotification:toChannel: and allow to specify message sending processing block.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ applePushNotification:@{@"aps":@{@"alert":@"Someone sent array of strings"}} 
+           toChannel:[PNChannel channelWithName:@"iosdev"]
+ withCompletionBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param apnsPayload
+ Valid APNS payload dictionary which should be delivered using push service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param success
+ The block which will be called by \b PubNub client any time when message processing state will be changed. The block takes two arguments:
+ \c state - one of \b PNMessageState enumerator fields which tell at which stage message at this moment; \c data - depending on whether message is sending/sent or in state
+ of message sending failure it can be one of: \b PNMessage or \b PNError instance.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+       withCompletionBlock:(PNClientMessageProcessingBlock)success;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:toChannel: and allow to specify separate payload which will be sent along with message using GCM.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ googleCloudNotification:@{@"data":@{@"summary":@"Someone sent array of strings"}} 
+           toChannel:[PNChannel channelWithName:@"iosdev"]];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param gcmPayload
+ Valid GCM payload dictionary which should be delivered using cloud service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:googleCloudNotification:toChannel: and allow to specify message sending processing block.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ googleCloudNotification:@{@"data":@{@"summary":@"Someone sent array of strings"}}
+           toChannel:[PNChannel channelWithName:@"iosdev"]
+ withCompletionBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param gcmPayload
+ Valid GCM payload dictionary which should be delivered using cloud service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param success
+ The block which will be called by \b PubNub client any time when message processing state will be changed. The block takes two arguments:
+ \c state - one of \b PNMessageState enumerator fields which tell at which stage message at this moment; \c data - depending on whether message is sending/sent or in state
+ of message sending failure it can be one of: \b PNMessage or \b PNError instance.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+       withCompletionBlock:(PNClientMessageProcessingBlock)success;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:toChannel: and allow to specify separate payload which will be sent along with message using APNS and GCM.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ applePushNotification:@{@"aps":@{@"alert":@"Someone sent array of strings"}} 
+googleCloudNotification:@{@"data":@{@"summary":@"Someone sent array of strings"}}
+           toChannel:[PNChannel channelWithName:@"iosdev"]];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param apnsPayload
+ Valid APNS payload dictionary which should be delivered using push service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param gcmPayload
+ Valid GCM payload dictionary which should be delivered using cloud service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:applePushNotification:googleCloudNotification:toChannel: and allow to specify message sending processing block.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ applePushNotification:@{@"aps":@{@"alert":@"Someone sent array of strings"}} 
+ googleCloudNotification:@{@"data":@{@"summary":@"Someone sent array of strings"}}
+           toChannel:[PNChannel channelWithName:@"iosdev"]
+ withCompletionBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param apnsPayload
+ Valid APNS payload dictionary which should be delivered using push service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param gcmPayload
+ Valid GCM payload dictionary which should be delivered using cloud service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param success
+ The block which will be called by \b PubNub client any time when message processing state will be changed. The block takes two arguments:
+ \c state - one of \b PNMessageState enumerator fields which tell at which stage message at this moment; \c data - depending on whether message is sending/sent or in state
+ of message sending failure it can be one of: \b PNMessage or \b PNError instance.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel withCompletionBlock:(PNClientMessageProcessingBlock)success;
+
+/**
  Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
  
  @code
@@ -8836,14 +9360,6 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
  @return \b PNMessage instance if message payload is correct or \c nil if not.
  */
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage;
-
-/**
- Same as +sendMessage:toChannel: but allow to specify completion block which will be called when message will be sent or in case of error.
- 
- Only last call of this method will call completion block. If you need to track message sending from many places, use PNObservationCenter methods 
- for this purpose.
- */
-+ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel withCompletionBlock:(PNClientMessageProcessingBlock)success;
 
 /**
  Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
@@ -8930,9 +9446,501 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
        withCompletionBlock:(PNClientMessageProcessingBlock)success;
 
 /**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:applePushNotification:toChannel: and allow to specify whether message should be GZIPed before sending to the \b PubNub service or not.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ applePushNotification:@{@"aps":@{@"alert":@"Someone sent array of strings"}} 
+           toChannel:[PNChannel channelWithName:@"iosdev"] compressed:NO];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param apnsPayload
+ Valid APNS payload dictionary which should be delivered using push service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param shouldCompressMessage
+ If set to \c YES \b PubNub client will sent it in GZIPed form.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:applePushNotification:toChannel:compressed: and allow to specify message sending processing block.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ applePushNotification:@{@"aps":@{@"alert":@"Someone sent array of strings"}} 
+           toChannel:[PNChannel channelWithName:@"iosdev"] compressed:NO];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param apnsPayload
+ Valid APNS payload dictionary which should be delivered using push service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param shouldCompressMessage
+ If set to \c YES \b PubNub client will sent it in GZIPed form.
+
+ @param success
+ The block which will be called by \b PubNub client any time when message processing state will be changed. The block takes two arguments:
+ \c state - one of \b PNMessageState enumerator fields which tell at which stage message at this moment; \c data - depending on whether message is sending/sent or in state
+ of message sending failure it can be one of: \b PNMessage or \b PNError instance.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:googleCloudNotification:toChannel: and allow to specify whether message should be GZIPed before sending to the \b PubNub service or not.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ googleCloudNotification:@{@"data":@{@"summary":@"Someone sent array of strings"}}
+           toChannel:[PNChannel channelWithName:@"iosdev"] compressed:NO];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param gcmPayload
+ Valid GCM payload dictionary which should be delivered using cloud service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param shouldCompressMessage
+ If set to \c YES \b PubNub client will sent it in GZIPed form.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:googleCloudNotification:toChannel:compressed: and allow to specify message sending processing block.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ googleCloudNotification:@{@"data":@{@"summary":@"Someone sent array of strings"}}
+           toChannel:[PNChannel channelWithName:@"iosdev"] compressed:NO];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param gcmPayload
+ Valid GCM payload dictionary which should be delivered using cloud service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param shouldCompressMessage
+ If set to \c YES \b PubNub client will sent it in GZIPed form.
+
+ @param success
+ The block which will be called by \b PubNub client any time when message processing state will be changed. The block takes two arguments:
+ \c state - one of \b PNMessageState enumerator fields which tell at which stage message at this moment; \c data - depending on whether message is sending/sent or in state
+ of message sending failure it can be one of: \b PNMessage or \b PNError instance.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:applePushNotification:googleCloudNotification:toChannel: and allow to specify whether message should be GZIPed before sending to the \b PubNub service or not.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ applePushNotification:@{@"aps":@{@"alert":@"Someone sent array of strings"}} 
+ googleCloudNotification:@{@"data":@{@"summary":@"Someone sent array of strings"}}
+           toChannel:[PNChannel channelWithName:@"iosdev"] compressed:NO];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param apnsPayload
+ Valid APNS payload dictionary which should be delivered using push service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param gcmPayload
+ Valid GCM payload dictionary which should be delivered using cloud service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param shouldCompressMessage
+ If set to \c YES \b PubNub client will sent it in GZIPed form.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage;
+
+/**
+ Send \c message to the \c channel. All messages placed into queue and will be sent in the same order as they were scheduled.
+ 
+ @code
+ @endcode
+ This method extends \a +sendMessage:applePushNotification:googleCloudNotification:toChannel:compressed: and allow to specify message sending processing block.
+ 
+ @code
+ @endcode
+ \b Example:
+ 
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub sendMessage:@{@"array": @[@"of", @"strings"], @"and": @16} 
+ applePushNotification:@{@"aps":@{@"alert":@"Someone sent array of strings"}} 
+ googleCloudNotification:@{@"data":@{@"summary":@"Someone sent array of strings"}}
+           toChannel:[PNChannel channelWithName:@"iosdev"] compressed:NO];
+ @endcode
+ 
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client willSendMessage:(PNMessage *)message {
+ 
+     // PubNub client is sending message at this moment.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didFailMessageSend:(PNMessage *)message withError:(PNError *)error {
+ 
+     // PubNub client failed to send message and reason is in 'error'.
+ }
+ 
+ - (void)pubnubClient:(PubNub *)client didSendMessage:(PNMessage *)message {
+ 
+     // PubNub client successfully sent message to specified channel.
+ }
+ @endcode
+ 
+ There is also way to observe connection state from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addMessageProcessingObserver:self
+  withBlock:^(PNMessageState state, id data) {
+ 
+  switch (state) {
+      case PNMessageSending:
+ 
+          // PubNub client is sending message at this moment. 'data' stores reference on PNMessage instance which is processing at this moment.
+          break;
+      case PNMessageSendingError:
+ 
+          // PubNub client failed to send message and reason is in 'data' object.
+          break;
+      case PNMessageSent:
+ 
+          // PubNub client successfully sent message to specified channel. 'data' stores reference on PNMessage instance which has been sent.
+          break;
+      }
+ }];
+ @endcode
+ 
+ @param message
+ Object which should be sent to the channel. It can be any object which can be serialized into JSON: \c NSString, \c NSNumber, \c NSArray,
+ \c NSDictionary .
+
+ @param apnsPayload
+ Valid APNS payload dictionary which should be delivered using push service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param gcmPayload
+ Valid GCM payload dictionary which should be delivered using cloud service to all subscribers. You can append some more data except message which should be shown to the user.
+
+ @param channel
+ \b PNChannel instance to which message should be sent.
+
+ @param shouldCompressMessage
+ If set to \c YES \b PubNub client will sent it in GZIPed form.
+
+ @param success
+ The block which will be called by \b PubNub client any time when message processing state will be changed. The block takes two arguments:
+ \c state - one of \b PNMessageState enumerator fields which tell at which stage message at this moment; \c data - depending on whether message is sending/sent or in state
+ of message sending failure it can be one of: \b PNMessage or \b PNError instance.
+ 
+ @return \b PNMessage instance if message payload is correct or \c nil if not.
+ */
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success;
+
+/**
  Asynchronously send configured message object to PubNub service.
  */
 + (void)sendMessage:(PNMessage *)message;
+
+/**
+ Same as +sendMessage: but allow to specify completion block which will be called when message will be sent or in case of error.
+ 
+ Only last call of this method will call completion block. If you need to track message sending from many places, use PNObservationCenter methods
+ for this purpose.
+ */
++ (void)sendMessage:(PNMessage *)message withCompletionBlock:(PNClientMessageProcessingBlock)success;
 
 /**
  Send configured \b PNMessage instance. All messages will be placed into queue and will be send in the same order as they were scheduled.
@@ -8996,14 +10004,6 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
  \c NSDictionary .
  */
 + (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage;
-
-/**
- Same as +sendMessage: but allow to specify completion block which will be called when message will be sent or in case of error.
- 
- Only last call of this method will call completion block. If you need to track message sending from many places, use PNObservationCenter methods 
- for this purpose.
- */
-+ (void)sendMessage:(PNMessage *)message withCompletionBlock:(PNClientMessageProcessingBlock)success;
 
 /**
  Send configured \b PNMessage instance. All messages will be placed into queue and will be send in the same order as they were scheduled.

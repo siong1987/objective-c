@@ -3067,10 +3067,8 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
 + (void)postponeRequestServerTimeTokenWithCompletionBlock:(PNClientTimeTokenReceivingCompleteBlock)success {
     
-    [[self sharedInstance] postponeSelector:@selector(requestServerTimeTokenWithCompletionBlock:)
-                                  forObject:self
-                             withParameters:@[[PNHelper nilifyIfNotSet:success]]
-                                 outOfOrder:NO];
+    [[self sharedInstance] postponeSelector:@selector(requestServerTimeTokenWithCompletionBlock:) forObject:self
+                             withParameters:@[[PNHelper nilifyIfNotSet:success]] outOfOrder:NO];
 }
 
 
@@ -3078,17 +3076,53 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel {
     
-    return [self sendMessage:message toChannel:channel compressed:NO];
-}
-
-+ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage {
-    
-    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage withCompletionBlock:nil];
+    return [self sendMessage:message toChannel:channel withCompletionBlock:nil];
 }
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
     return [self sendMessage:message toChannel:channel compressed:NO withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel compressed:NO withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel compressed:NO withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload toChannel:channel
+         withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload
+                   toChannel:channel compressed:NO withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage {
+    
+    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage withCompletionBlock:nil];
 }
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
@@ -3158,6 +3192,93 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
     
     
     return messageObject;
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel compressed:shouldCompressMessage
+         withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:nil toChannel:channel
+                  compressed:shouldCompressMessage withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel compressed:shouldCompressMessage
+         withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:nil googleCloudNotification:gcmPayload toChannel:channel
+                  compressed:shouldCompressMessage withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload toChannel:channel
+                  compressed:shouldCompressMessage withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    PNMessage *messageObject = nil;
+    NSMutableDictionary *messageForSending = (!message ? [NSMutableDictionary dictionary] : nil);
+    if (message) {
+        
+        if ([message isKindOfClass:[NSDictionary class]]) {
+            
+            // Checking whether user already provided valid APNS payload or not (for backward compatibiliy)
+            if ([(NSDictionary *)message valueForKey:@"aps"]) {
+                
+                // Recompose APNS payload to use newer JSON format.
+                messageForSending = [NSMutableDictionary dictionaryWithDictionary:@{@"pn_apns":message}];
+            }
+            else if (apnsPayload || gcmPayload) {
+                
+                // Looks like user provided dictionary with data into which we will be able to put notification payloads
+                // if required.
+                messageForSending = [message mutableCopy];
+            }
+            else {
+                
+                // Looks like there is no push notification data which can be used.
+                messageObject = [self sendMessage:message toChannel:channel compressed:shouldCompressMessage withCompletionBlock:success];
+            }
+        }
+        else if (apnsPayload || gcmPayload) {
+            
+            messageForSending = [NSMutableDictionary dictionaryWithDictionary:@{@"pn_other":message}];
+        }
+        else {
+            
+            // Looks like there is no push notification data which can be used.
+            messageObject = [self sendMessage:message toChannel:channel compressed:shouldCompressMessage withCompletionBlock:success];
+        }
+    }
+    
+    if (apnsPayload) {
+        
+        [messageForSending setValue:apnsPayload forKeyPath:@"pn_apns"];
+    }
+    
+    if (gcmPayload) {
+        
+        [messageForSending setValue:gcmPayload forKeyPath:@"pn_gcm"];
+    }
+    
+    
+    return (messageObject ? messageObject : [self sendMessage:messageForSending toChannel:channel compressed:shouldCompressMessage withCompletionBlock:success]);
 }
 
 + (void)postponeSendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
