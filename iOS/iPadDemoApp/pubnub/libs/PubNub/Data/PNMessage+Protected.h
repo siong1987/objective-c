@@ -61,7 +61,7 @@ extern struct PNMessageDataKeysStruct PNMessageDataKeys;
 
 #pragma mark - Class forward
 
-@class PNChannel, PNDate;
+@class PNChannel, PNError, PNDate;
 
 
 #pragma mark - Protected methods

@@ -21,7 +21,7 @@
         }
          
          if ([[NSDate date] compare:dateLimit] == NSOrderedDescending) {
-             NSAssert(YES, @"Timout during last operation. Time limit: %ld", timeout);
+             NSAssert(YES, @"Timout during last operation. Time limit: %d", (int)timeout);
              break;
          }
         
@@ -40,7 +40,7 @@
         }
         
         if ([[NSDate date] compare:dateLimit] == NSOrderedDescending) {
-            NSAssert(YES, @"Timout during last operation. Time limit: %ld", timeout);
+            NSAssert(YES, @"Timout during last operation. Time limit: %d", (int)timeout);
             break;
         }
         
@@ -51,6 +51,27 @@
 + (void)waitGroup:(dispatch_group_t)dispatchGroup {
     [self waitGroup:dispatchGroup
          withTimout:30];
+}
+
++ (BOOL)isGroup:(dispatch_group_t)dispatchGroup timeoutFiredValue:(NSInteger)timeout {
+    NSDate *dateLimit = [NSDate dateWithTimeIntervalSinceNow:timeout];
+    
+    BOOL res = NO;
+    
+    while(YES) {
+        if (!dispatch_group_wait(dispatchGroup, DISPATCH_TIME_NOW)) {
+            break;
+        }
+        
+        if ([[NSDate date] compare:dateLimit] == NSOrderedDescending) {
+            res = YES;
+            break;
+        }
+        
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+    }
+    
+    return res;
 }
 
 + (void)sleepForSeconds:(NSUInteger)sec {

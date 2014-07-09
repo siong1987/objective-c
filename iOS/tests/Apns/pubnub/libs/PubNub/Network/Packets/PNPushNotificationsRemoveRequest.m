@@ -13,8 +13,10 @@
 
 #import "PNPushNotificationsRemoveRequest.h"
 #import "PNServiceResponseCallbacks.h"
-#import "PubNub+Protected.h"
 #import "PNBaseRequest+Protected.h"
+#import "NSString+PNAddition.h"
+#import "NSData+PNAdditions.h"
+#import "PubNub+Protected.h"
 
 
 // ARC check
@@ -33,6 +35,7 @@
 
 // Stores reference on stringified push notification token
 @property (nonatomic, strong) NSString *pushToken;
+@property (nonatomic, strong) NSData *devicePushToken;
 
 #pragma mark -
 
@@ -61,6 +64,7 @@
     if ((self = [super init])) {
 
         self.sendingByUserRequest = YES;
+        self.devicePushToken = pushToken;
         self.pushToken = [[pushToken HEXPushToken] lowercaseString];
     }
 

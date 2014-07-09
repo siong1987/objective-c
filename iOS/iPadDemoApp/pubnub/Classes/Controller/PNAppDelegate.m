@@ -179,7 +179,6 @@
     // Application received push notification (only in foreground or if application is able to work in background),
 }
 
-
 #pragma mark - PubNub client delegate methods
 
 - (void)pubnubClient:(PubNub *)client didChangeAccessRights:(PNAccessRightsCollection *)accessRightsCollection {
@@ -310,8 +309,6 @@
 }
 
 - (void)pubnubClient:(PubNub *)client didConnectToOrigin:(NSString *)origin {
-
-
 
     NSString *message = [NSString stringWithFormat:@"PubNub client successfully connected to PubNub origin at: %@", origin];
     if (self.isDisconnectedOnNetworkError) {
