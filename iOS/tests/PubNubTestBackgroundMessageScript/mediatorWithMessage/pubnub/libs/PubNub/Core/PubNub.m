@@ -1,8 +1,8 @@
 /**
 
  @author Sergey Mamontov
- @version 3.6.0
- @copyright © 2009-13 PubNub Inc.
+ @version 3.6.2
+ @copyright © 2009-14 PubNub Inc.
 
  */
 
@@ -36,9 +36,8 @@
 
 #pragma mark Static
 
-static NSString * const kPNLibraryVersion = @"3.6.1";
 static NSString * const kPNCodebaseBranch = @"develop";
-static NSString * const kPNCodeCommitIdentifier = @"fa8b146775ac51dc90e611741101e9199fc6316e";
+static NSString * const kPNCodeCommitIdentifier = @"0a1dde4ff60886397caae39a762ce3b9c6817f47";
 
 // Stores reference on singleton PubNub instance
 static PubNub *_sharedInstance = nil;

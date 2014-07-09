@@ -1,8 +1,8 @@
 /**
 
  @author Sergey Mamontov
- @version 3.6.0
- @copyright © 2009-13 PubNub Inc.
+ @version 3.6.2
+ @copyright © 2009-14 PubNub Inc.
 
  */
 
@@ -36,9 +36,8 @@
 
 #pragma mark Static
 
-static NSString * const kPNLibraryVersion = @"3.6.1";
 static NSString * const kPNCodebaseBranch = @"develop";
-static NSString * const kPNCodeCommitIdentifier = @"fa8b146775ac51dc90e611741101e9199fc6316e";
+static NSString * const kPNCodeCommitIdentifier = @"0a1dde4ff60886397caae39a762ce3b9c6817f47";
 
 // Stores reference on singleton PubNub instance
 static PubNub *_sharedInstance = nil;
@@ -207,8 +206,8 @@ static NSMutableArray *pendingInvocations = nil;
 
 #pragma mark - Messages processing methods
 
-+ (void)postponeSendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
-             storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success;
++ (void)postponeSendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory
+        withCompletionBlock:(PNClientMessageProcessingBlock)success;
 
 
 #pragma mark - History methods
@@ -3068,10 +3067,8 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
 + (void)postponeRequestServerTimeTokenWithCompletionBlock:(PNClientTimeTokenReceivingCompleteBlock)success {
     
-    [[self sharedInstance] postponeSelector:@selector(requestServerTimeTokenWithCompletionBlock:)
-                                  forObject:self
-                             withParameters:@[[PNHelper nilifyIfNotSet:success]]
-                                 outOfOrder:NO];
+    [[self sharedInstance] postponeSelector:@selector(requestServerTimeTokenWithCompletionBlock:) forObject:self
+                             withParameters:@[[PNHelper nilifyIfNotSet:success]] outOfOrder:NO];
 }
 
 
@@ -3079,28 +3076,17 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel {
     
-    return [self sendMessage:message toChannel:channel storeInHistory:YES];
-}
-
-+ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel storeInHistory:(BOOL)shouldStoreInHistory {
-    
-    return [self sendMessage:message toChannel:channel compressed:NO storeInHistory:shouldStoreInHistory];
-}
-
-+ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage {
-    
-    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:YES];
-}
-
-+ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
-    
-    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
-         withCompletionBlock:nil];
+    return [self sendMessage:message toChannel:channel withCompletionBlock:nil];
 }
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
-    return [self sendMessage:message toChannel:channel compressed:NO storeInHistory:YES withCompletionBlock:success];
+    return [self sendMessage:message toChannel:channel storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message toChannel:channel storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
 }
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel storeInHistory:(BOOL)shouldStoreInHistory
@@ -3109,10 +3095,99 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
     return [self sendMessage:message toChannel:channel compressed:NO storeInHistory:shouldStoreInHistory withCompletionBlock:success];
 }
 
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+            storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel storeInHistory:shouldStoreInHistory
+         withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+            storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel compressed:NO
+              storeInHistory:shouldStoreInHistory withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+            storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel storeInHistory:shouldStoreInHistory
+         withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+            storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel compressed:NO
+              storeInHistory:shouldStoreInHistory withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload toChannel:channel
+         withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload
+                   toChannel:channel storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload
+                   toChannel:channel storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload
+                   toChannel:channel compressed:NO storeInHistory:shouldStoreInHistory withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage {
+    
+    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage withCompletionBlock:nil];
+}
+
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
        withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
     return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
+         withCompletionBlock:nil];
 }
 
 + (PNMessage *)sendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory
@@ -3126,8 +3201,8 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
     
     // Create object instance
     PNError *error = nil;
-    PNMessage *messageObject = [PNMessage messageWithObject:message forChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
-                                                      error:&error];
+    PNMessage *messageObject = [PNMessage messageWithObject:message forChannel:channel compressed:shouldCompressMessage
+                                             storeInHistory:shouldStoreInHistory error:&error];
     
     [self performAsyncLockingBlock:^{
         
@@ -3178,16 +3253,151 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
                            [self humanReadableStateFrom:[self sharedInstance].state]];
                }];
                
-               [self postponeSendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
-                     withCompletionBlock:(success ? [success copy] : nil)];
+               [self postponeSendMessage:message toChannel:channel compressed:shouldCompressMessage
+                          storeInHistory:shouldStoreInHistory withCompletionBlock:(success ? [success copy] : nil)];
            }];
     
     
     return messageObject;
 }
 
-+ (void)postponeSendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
-             storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success {
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel compressed:shouldCompressMessage
+         withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel compressed:shouldCompressMessage
+              storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload toChannel:channel compressed:shouldCompressMessage
+              storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:nil toChannel:channel
+                  compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel compressed:shouldCompressMessage
+         withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel
+                  compressed:shouldCompressMessage storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message googleCloudNotification:gcmPayload toChannel:channel
+                  compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message googleCloudNotification:(NSDictionary *)gcmPayload toChannel:(PNChannel *)channel
+                compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:nil googleCloudNotification:gcmPayload toChannel:channel
+                  compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload toChannel:channel
+                  compressed:shouldCompressMessage withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload toChannel:channel
+                  compressed:shouldCompressMessage storeInHistory:YES withCompletionBlock:success];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    return [self sendMessage:message applePushNotification:apnsPayload googleCloudNotification:gcmPayload toChannel:channel
+                  compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
+}
+
++ (PNMessage *)sendMessage:(id)message applePushNotification:(NSDictionary *)apnsPayload googleCloudNotification:(NSDictionary *)gcmPayload
+                 toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory
+       withCompletionBlock:(PNClientMessageProcessingBlock)success {
+    
+    PNMessage *messageObject = nil;
+    NSMutableDictionary *messageForSending = (!message ? [NSMutableDictionary dictionary] : nil);
+    if (message) {
+        
+        if ([message isKindOfClass:[NSDictionary class]]) {
+            
+            // Checking whether user already provided valid APNS payload or not (for backward compatibiliy)
+            if ([(NSDictionary *)message valueForKey:@"aps"]) {
+                
+                // Recompose APNS payload to use newer JSON format.
+                messageForSending = [NSMutableDictionary dictionaryWithDictionary:@{@"pn_apns":message}];
+            }
+            else if (apnsPayload || gcmPayload) {
+                
+                // Looks like user provided dictionary with data into which we will be able to put notification payloads
+                // if required.
+                messageForSending = [message mutableCopy];
+            }
+            else {
+                
+                // Looks like there is no push notification data which can be used.
+                messageObject = [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
+                              withCompletionBlock:success];
+            }
+        }
+        else if (apnsPayload || gcmPayload) {
+            
+            messageForSending = [NSMutableDictionary dictionaryWithDictionary:@{@"pn_other":message}];
+        }
+        else {
+            
+            // Looks like there is no push notification data which can be used.
+            messageObject = [self sendMessage:message toChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory
+                          withCompletionBlock:success];
+        }
+    }
+    
+    if (apnsPayload) {
+        
+        [messageForSending setValue:apnsPayload forKeyPath:@"pn_apns"];
+    }
+    
+    if (gcmPayload) {
+        
+        [messageForSending setValue:gcmPayload forKeyPath:@"pn_gcm"];
+    }
+    
+    
+    return (messageObject ? messageObject :
+            [self sendMessage:messageForSending toChannel:channel compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory withCompletionBlock:success]);
+}
+
++ (void)postponeSendMessage:(id)message toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory
+        withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
     [[self sharedInstance] postponeSelector:@selector(sendMessage:toChannel:compressed:storeInHistory:withCompletionBlock:)
                                   forObject:self
@@ -3198,37 +3408,37 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
 + (void)sendMessage:(PNMessage *)message {
     
-    [self sendMessage:message storeInHistory:YES];
-}
-
-+ (void)sendMessage:(PNMessage *)message storeInHistory:(BOOL)shouldStoreInHistory {
-    
-    [self sendMessage:message compressed:NO storeInHistory:shouldStoreInHistory];
-}
-
-+ (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage {
-    
-    [self sendMessage:message compressed:shouldCompressMessage storeInHistory:YES];
-}
-
-+ (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
-    
-    [self sendMessage:message compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
+    [self sendMessage:message withCompletionBlock:nil];
 }
 
 + (void)sendMessage:(PNMessage *)message withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
-    [self sendMessage:message storeInHistory:YES withCompletionBlock:success];
+    [self sendMessage:message.message storeInHistory:YES withCompletionBlock:success];
+}
+
++ (void)sendMessage:(PNMessage *)message storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    [self sendMessage:message.message storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
 }
 
 + (void)sendMessage:(PNMessage *)message storeInHistory:(BOOL)shouldStoreInHistory withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
-    [self sendMessage:message compressed:NO storeInHistory:shouldStoreInHistory withCompletionBlock:success];
+    [self sendMessage:message.message compressed:NO storeInHistory:shouldStoreInHistory withCompletionBlock:success];
+}
+
++ (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage {
+    
+    [self sendMessage:message.message compressed:shouldCompressMessage withCompletionBlock:nil];
 }
 
 + (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage withCompletionBlock:(PNClientMessageProcessingBlock)success {
     
     [self sendMessage:message compressed:shouldCompressMessage storeInHistory:YES withCompletionBlock:success];
+}
+
++ (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory {
+    
+    [self sendMessage:message compressed:shouldCompressMessage storeInHistory:shouldStoreInHistory withCompletionBlock:nil];
 }
 
 + (void)sendMessage:(PNMessage *)message compressed:(BOOL)shouldCompressMessage storeInHistory:(BOOL)shouldStoreInHistory

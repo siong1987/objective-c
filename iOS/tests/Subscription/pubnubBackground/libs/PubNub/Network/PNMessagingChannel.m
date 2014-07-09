@@ -191,11 +191,15 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
 #pragma mark - Handler methods
 
 /**
- * Called every time when client complete leave request processing
+ Called every time when client complete / faile leave request processing.
+ 
+ @param request
+ Reference on initial request which has been used.
+ 
+ @param result
+ Result can be either PNResponse or PNError instances (depending on reason why this method has been called.
  */
-- (void)handleLeaveRequestCompletionForChannels:(NSArray *)channels
-                                   withResponse:(PNResponse *)response
-                                  byUserRequest:(BOOL)isLeavingByUserRequest;
+- (void)handleLeaveRequestCompletionForWithRequest:(PNBaseRequest *)request processingResult:(id)result;
 
 /**
  * Called every time when one of events occur on channels:
@@ -209,11 +213,6 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
  * Called every time when subscribe request fails
  */
 - (void)handleSubscribeDidFail:(PNBaseRequest *)request withError:(PNError *)error;
-
-/**
- * Called every time when subscribe request fails
- */
-- (void)handleUnsubscribeDidFail:(PNBaseRequest *)request withError:(PNError *)error;
 
 /**
  * Handle Idle timer trigger and reconnect channel if it is possible
@@ -319,9 +318,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
         [response.callbackMethod isEqualToString:PNServiceResponseCallbacks.leaveChannelCallback]) {
         
         // Process leave request process completion
-        [self handleLeaveRequestCompletionForChannels:((PNLeaveRequest *)request).channels
-                                         withResponse:response
-                                        byUserRequest:[request isSendingByUserRequest]];
+        [self handleLeaveRequestCompletionForWithRequest:request processingResult:response];
         
         // Remove request from queue to unblock it (subscribe events and message post requests was blocked)
         [self destroyRequest:request];
@@ -372,7 +369,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             else {
                 
                 // Notify delegate about that client failed to leave set of channels
-                [self handleUnsubscribeDidFail:request withError:error];
+                [self handleLeaveRequestCompletionForWithRequest:request processingResult:error];
             }
         }
     }
@@ -1377,45 +1374,46 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
 
 #pragma mark - Handler methods
 
-- (void)handleLeaveRequestCompletionForChannels:(NSArray *)channels withResponse:(PNResponse *)response
-                                  byUserRequest:(BOOL)isLeavingByUserRequest {
+- (void)handleLeaveRequestCompletionForWithRequest:(PNBaseRequest *)request processingResult:(id)result {
     
-    BOOL shouldRemoveChannels = [channels count] > 0;
+    PNLeaveRequest *leaveRequest = (PNLeaveRequest *)request;
+    BOOL isSuccessfulResponse = ![result isKindOfClass:[PNError class]];
     
-    if (response != nil) {
+    [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
         
-        PNResponseParser *parser = [PNResponseParser parserForResponse:response];
-
-        [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
-
-            return [NSString stringWithFormat:@"[CHANNEL::%@] LEAVE REQUEST RESULT: %@ (STATE: %lu)",
-                    self, parser, self.messagingState];
-        }];
+        return [NSString stringWithFormat:@"[CHANNEL::%@] LEAVE REQUEST COMPLETED (STATE: %lu)",
+                self, self.messagingState];
+    }];
+    if (!(isSuccessfulResponse || result == nil)) {
         
-        PNOperationResultEvent result = PNOperationResultLeave;
-        shouldRemoveChannels = YES;
-        
-        // Ensure that parsed data has numeric data, which will mean that this is status code or event enum value
-        if ([[parser parsedData] isKindOfClass:[NSNumber class]]) {
+        [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
             
-            result = (PNOperationResultEvent)[[parser parsedData] intValue];
-            shouldRemoveChannels = result == PNOperationResultLeave;
+            return [NSString stringWithFormat:@"[CHANNEL::%@] PRESENCE 'LEAVE' REQUEST ERROR: %@\nCHANNELS: %@\n(STATE: %lu)",
+                    self, result, leaveRequest.channels, self.messagingState];
+        }];
+    }
+            
+    [self.oldSubscribedChannelsSet setSet:self.subscribedChannelsSet];
+    [self.subscribedChannelsSet minusSet:[self channelsWithPresenceFromList:leaveRequest.channels forSubscribe:NO]];
+        
+    [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
+        
+        return [NSString stringWithFormat:@"[CHANNEL::%@] UNSUBSCRIBED FROM CHANNELS: %@\n(STATE: %lu)",
+                self, leaveRequest.channels, self.messagingState];
+    }];
+    
+    if (request.isSendingByUserRequest) {
+        
+        if (![self hasRequestsWithClass:[PNSubscribeRequest class]]) {
+
+            [self.messagingDelegate messagingChannel:self
+                          didUnsubscribeFromChannels:[self channelsWithOutPresenceFromList:leaveRequest.channels]
+                                           sequenced:NO];
         }
     }
     
-    if (shouldRemoveChannels) {
-        
-        [self.oldSubscribedChannelsSet setSet:self.subscribedChannelsSet];
-        [self.subscribedChannelsSet minusSet:[self channelsWithPresenceFromList:channels forSubscribe:NO]];
-    }
-    
-    
-    if (isLeavingByUserRequest && ![self hasRequestsWithClass:[PNSubscribeRequest class]]) {
-        
-        [self.messagingDelegate messagingChannel:self
-                      didUnsubscribeFromChannels:[self channelsWithOutPresenceFromList:channels]
-                                       sequenced:NO ];
-    }
+    // Removing failed request from queue
+    [self destroyRequest:request];
 }
 
 - (void)handleEventOnChannelsForRequest:(PNSubscribeRequest *)request withResponse:(PNResponse *)response {
@@ -1548,6 +1546,8 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
     // Check whether failed to subscribe on set of channels or not
     NSMutableSet *channelsForSubscription = [NSMutableSet setWithArray:[self channelsWithOutPresenceFromList:subscriptionRequest.channelsForSubscription]];
     [channelsForSubscription minusSet:[NSSet setWithArray:[self channelsWithOutPresenceFromList:[self.subscribedChannelsSet allObjects]]]];
+    NSMutableSet *existingChannelsSet = [NSMutableSet setWithArray:[self channelsWithOutPresenceFromList:[self.oldSubscribedChannelsSet allObjects]]];
+    [existingChannelsSet minusSet:[NSSet setWithArray:[self channelsWithOutPresenceFromList:subscriptionRequest.channelsForSubscription]]];
     if ([channelsForSubscription count]) {
 
         [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
@@ -1571,6 +1571,13 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                                            sequenced:([subscriptionRequest.channelsForPresenceEnabling count] ||
                                                       [subscriptionRequest.channelsForPresenceDisabling count])];
         }
+    }
+    
+    // Check whether request doesn't include one of the channels at which client has been subscribed before
+    // (it mean that request unsubscribed from some channels).
+    if ([existingChannelsSet count]) {
+        
+        [self handleLeaveRequestCompletionForWithRequest:subscriptionRequest processingResult:error];
     }
     
     // Check whether tried to enable presence or not
@@ -1615,29 +1622,6 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
     }
 }
 
-- (void)handleUnsubscribeDidFail:(PNBaseRequest *)request withError:(PNError *)error {
-    
-    [PNBitwiseHelper removeFrom:&_messagingState bits:PNMessagingChannelRestoringSubscription, PNMessagingChannelUpdateSubscription,
-     PNMessagingChannelResubscribeOnTimeOut, PNMessagingChannelSubscriptionTimeTokenRetrieve, BITS_LIST_TERMINATOR];
-    
-    PNLeaveRequest *leaveRequest = (PNLeaveRequest *)request;
-
-    [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
-
-        return [NSString stringWithFormat:@"[CHANNEL::%@] UNSUBSCRIPTION FAILED WITH ERROR: %@\nCHANNELS: %@\n(STATE: %lu)",
-                self, error, leaveRequest.channels, self.messagingState];
-    }];
-    
-    // Checking whether user generated request or not
-    if (request.isSendingByUserRequest) {
-        
-        [self.messagingDelegate messagingChannel:self didFailUnsubscribeOnChannels:leaveRequest.channels withError:error
-                                       sequenced:NO];
-    }
-    
-    [self restoreSubscriptionOnPreviousChannels];
-}
-
 - (void)handleTimeoutTimer:(NSTimer *)timer {
     
     PNBaseRequest *request = (PNBaseRequest *)timer.userInfo;
@@ -1653,7 +1637,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
         
         if ([request isKindOfClass:[PNLeaveRequest class]]) {
             
-            [self handleUnsubscribeDidFail:request withError:error];
+            [self handleLeaveRequestCompletionForWithRequest:request processingResult:error];
         }
         else {
             
@@ -1683,9 +1667,15 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
         [self destroyByRequestClass:[PNSubscribeRequest class]];
         
         if ([self.messagingDelegate shouldMessagingChannelRestoreSubscription:self]) {
-            
-            [PNBitwiseHelper addTo:&_messagingState bit:PNMessagingChannelResubscribeOnTimeOut];
-            [self restoreSubscription:[self.messagingDelegate shouldMessagingChannelRestoreWithLastTimeToken:self]];
+
+            // Ensure that client doesn't try to restore subscription on its own (after connection failure) to
+            // prevent race of conditions and process this request if required to resubscribe because of channel
+            // 'idle' state.
+            if (![PNBitwiseHelper is:self.messagingState containsBit:PNMessagingChannelRestoringSubscription]) {
+
+                [PNBitwiseHelper addTo:&_messagingState bit:PNMessagingChannelResubscribeOnTimeOut];
+                [self restoreSubscription:[self.messagingDelegate shouldMessagingChannelRestoreWithLastTimeToken:self]];
+            }
         }
         else {
             
@@ -2255,8 +2245,8 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                     }
                 }
                 
-                // Check whether request doesn't include one of the channels at which client has been subscribed before (it mean that request
-                // unsubscribed from some channels).
+                // Check whether request doesn't include one of the channels at which client has been subscribed before
+                // (it mean that request unsubscribed from some channels).
                 if ([existingChannelsSet count]) {
                     
                     [self.subscribedChannelsSet minusSet:existingChannelsSet];
