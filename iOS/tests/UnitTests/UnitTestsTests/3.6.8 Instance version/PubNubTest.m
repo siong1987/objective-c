@@ -33,6 +33,8 @@ PNDelegate
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+    
+    [PubNub disconnect];
 }
 
 #pragma mark - Test
@@ -110,7 +112,6 @@ PNDelegate
     _pubNub2 = [PubNub clientWithConfiguration:configuration2
                                           andDelegate:self];
     
-//    _pubNub2 = [[PubNub alloc] initWithConfiguration:configuration2 andDelegate:self];
     [_pubNub2 setupWithConfiguration:configuration2 andDelegate:self];
     
     _pubNub3 = [PubNub clientWithConfiguration:configuration3
