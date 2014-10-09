@@ -1,10 +1,10 @@
-//
-//  PubNubTest.m
-//  UnitTests
-//
-//  Created by Vadim Osovets on 9/30/14.
-//  Copyright (c) 2014 Vadim Osovets. All rights reserved.
-//
+/**
+ 
+ @author Vadim Osovets
+ @version3.6.8
+ @copyright © 2014-10 PubNub Inc.
+ 
+*/
 
 #import <XCTest/XCTest.h>
 
