@@ -447,7 +447,8 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                        if (shouldNotifyAboutSubscriptionRestore) {
                            
                            // Notify delegate that messaging channel is about to restore subscription on previous channels
-                           [self.messagingDelegate messagingChannel:self willRestoreSubscriptionOnChannels:((PNSubscribeRequest *)request).channels
+                           [self.messagingDelegate messagingChannel:self
+                                          willRestoreSubscriptionOn:((PNSubscribeRequest *)request).channels
                                                           sequenced:NO];
                        }
                    }
@@ -670,7 +671,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             
             if (isLeavingByUserRequest) {
                 
-                [self.messagingDelegate messagingChannel:self willUnsubscribeFromChannels:request.channels sequenced:NO];
+                [self.messagingDelegate messagingChannel:self willUnsubscribeFrom:request.channels sequenced:NO];
             }
             [self destroyByRequestClass:[PNLeaveRequest class]];
             [self scheduleRequest:request shouldObserveProcessing:YES];
@@ -800,7 +801,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             if ([PNBitwiseHelper is:self.messagingState containsBit:PNMessagingChannelRestoringSubscription]) {
                 
                 // Notify delegate that messaging channel is about to restore subscription on previous channels
-                [self.messagingDelegate messagingChannel:self willRestoreSubscriptionOnChannels:resubscribeRequest.channels
+                [self.messagingDelegate messagingChannel:self willRestoreSubscriptionOn:resubscribeRequest.channels
                                                sequenced:NO];
             }
             
@@ -1161,7 +1162,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                 
                 subscribeRequest.channelsForPresenceEnabling = [channelsForPresenceEnabling allObjects];
                 [self.messagingDelegate messagingChannel:self
-                 willEnablePresenceObservationOnChannels:[[channelsForPresenceEnabling valueForKey:@"observedChannel"] allObjects]
+                         willEnablePresenceObservationOn:[[channelsForPresenceEnabling valueForKey:@"observedChannel"] allObjects]
                                                sequenced:([channelsForPresenceDisabling count] > 0)];
             }
             
@@ -1176,14 +1177,14 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                     [self.oldSubscribedChannelsSet removeAllObjects];
                     
                     [self.messagingDelegate messagingChannel:self
-                     didDisablePresenceObservationOnChannels:[[channelsForPresenceDisabling valueForKey:@"observedChannel"] allObjects]
+                             didDisablePresenceObservationOn:[[channelsForPresenceDisabling valueForKey:@"observedChannel"] allObjects]
                                                    sequenced:NO];
                 }
                 else {
                     
                     subscribeRequest.channelsForPresenceDisabling = [channelsForPresenceDisabling allObjects];
                     [self.messagingDelegate messagingChannel:self
-                    willDisablePresenceObservationOnChannels:[[channelsForPresenceDisabling valueForKey:@"observedChannel"] allObjects]
+                            willDisablePresenceObservationOn:[[channelsForPresenceDisabling valueForKey:@"observedChannel"] allObjects]
                                                    sequenced:NO];
                 }
             }
@@ -1245,7 +1246,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                                          forRequest:nil forcibly:YES];
             }
             
-            [self.messagingDelegate messagingChannel:self didSubscribeOnChannels:channels sequenced:isPresenceModification
+            [self.messagingDelegate messagingChannel:self didSubscribeOn:channels sequenced:isPresenceModification
                                      withClientState:clientStateForRequest];
         }
         
@@ -1267,7 +1268,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                 }
                 
                 [self.messagingDelegate messagingChannel:self
-                  didEnablePresenceObservationOnChannels:presenceEnabledChannelsList
+                          didEnablePresenceObservationOn:presenceEnabledChannelsList
                                                sequenced:[PNBitwiseHelper is:channelPresenceOperation containsBit:PNMessagingChannelDisablingPresence]];
             }
             
@@ -1284,7 +1285,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                                                 sendRequest:NO];
                 
                 [self.messagingDelegate messagingChannel:self
-                 didDisablePresenceObservationOnChannels:[[channelsForPresenceDisabling valueForKey:@"observedChannel"] allObjects]
+                         didDisablePresenceObservationOn:[[channelsForPresenceDisabling valueForKey:@"observedChannel"] allObjects]
                                                sequenced:NO];
             }
         }
@@ -1406,7 +1407,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
         else {
             
             // Schedule immediately that client unsubscribed from suggested channels
-            [self.messagingDelegate messagingChannel:self didUnsubscribeFromChannels:channels sequenced:NO ];
+            [self.messagingDelegate messagingChannel:self didUnsubscribeFrom:channels sequenced:NO ];
             
             if ([PNBitwiseHelper is:self.messagingState containsBit:PNMessagingChannelSubscriptionWaitingForEvents]) {
                 
@@ -1486,7 +1487,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             // Remove 'presence enabled' state from list of specified channels
             [self disablePresenceObservationForChannels:channels sendRequest:NO];
             
-            [self.messagingDelegate messagingChannel:self didDisablePresenceObservationOnChannels:channels sequenced:NO];
+            [self.messagingDelegate messagingChannel:self didDisablePresenceObservationOn:channels sequenced:NO];
         }
     }
     else {
@@ -1540,7 +1541,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             if (![self hasRequestsWithClass:[PNSubscribeRequest class]]) {
                 
                 [self.messagingDelegate messagingChannel:self
-                              didUnsubscribeFromChannels:[self channelsWithOutPresenceFromList:leaveRequest.channels]
+                                      didUnsubscribeFrom:[self channelsWithOutPresenceFromList:leaveRequest.channels]
                                                sequenced:NO];
             }
         }
@@ -1709,7 +1710,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                 }
                 
                 NSArray *channels = [self channelsWithOutPresenceFromList:subscriptionRequest.channels];
-                [self.messagingDelegate messagingChannel:self didFailSubscribeOnChannels:channels withError:error
+                [self.messagingDelegate messagingChannel:self didFailSubscribeOn:channels withError:error
                                                sequenced:([subscriptionRequest.channelsForPresenceEnabling count] ||
                                                           [subscriptionRequest.channelsForPresenceDisabling count])];
             }
@@ -1737,7 +1738,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             if (request.isSendingByUserRequest) {
                 
                 NSArray *channels = [self channelsWithOutPresenceFromList:subscriptionRequest.channelsForPresenceEnabling];
-                [self.messagingDelegate messagingChannel:self didFailPresenceEnablingOnChannels:channels withError:error
+                [self.messagingDelegate messagingChannel:self didFailPresenceEnablingOn:channels withError:error
                                                sequenced:([subscriptionRequest.channelsForPresenceDisabling count] > 0)];
             }
         }
@@ -1757,7 +1758,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             if (request.isSendingByUserRequest) {
                 
                 NSArray *channels = [self channelsWithOutPresenceFromList:subscriptionRequest.channelsForPresenceDisabling];
-                [self.messagingDelegate messagingChannel:self didFailPresenceDisablingOnChannels:channels withError:error
+                [self.messagingDelegate messagingChannel:self didFailPresenceDisablingOn:channels withError:error
                                                sequenced:NO];
             }
         }
@@ -2432,7 +2433,8 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                             
                             [PNBitwiseHelper removeFrom:&_messagingState bit:PNMessagingChannelRestoringSubscription];
                             
-                            [self.messagingDelegate messagingChannel:self didRestoreSubscriptionOnChannels:[channelsForSubscription allObjects]
+                            [self.messagingDelegate messagingChannel:self
+                                            didRestoreSubscriptionOn:[channelsForSubscription allObjects]
                                                            sequenced:isInSequence];
                         }
                         else {
@@ -2444,7 +2446,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                             }];
                             
                             [self.messagingDelegate messagingChannel:self
-                                              didSubscribeOnChannels:[channelsForSubscription allObjects]
+                                                      didSubscribeOn:[channelsForSubscription allObjects]
                                                            sequenced:isInSequence
                                                      withClientState:((PNSubscribeRequest *)request).state];
                         }
@@ -2463,8 +2465,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                                     (existingChannelsSet ? existingChannelsSet : [NSNull null]), @(self.messagingState)];
                         }];
                         
-                        [self.messagingDelegate messagingChannel:self
-                                      didUnsubscribeFromChannels:[existingChannelsSet allObjects]
+                        [self.messagingDelegate messagingChannel:self didUnsubscribeFrom:[existingChannelsSet allObjects]
                                                        sequenced:([subscribeRequest.channelsForPresenceEnabling count] ||
                                                                   [subscribeRequest.channelsForPresenceDisabling count])];
                     }
@@ -2481,7 +2482,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                                     (presenceEnabledChannels ? presenceEnabledChannels : [NSNull null]), @(self.messagingState)];
                         }];
                         
-                        [self.messagingDelegate messagingChannel:self didEnablePresenceObservationOnChannels:presenceEnabledChannels
+                        [self.messagingDelegate messagingChannel:self didEnablePresenceObservationOn:presenceEnabledChannels
                                                        sequenced:([subscribeRequest.channelsForPresenceDisabling count] > 0)];
                     }
                     
@@ -2500,7 +2501,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                         // Remove 'presence enabled' state from list of specified channels
                         [self disablePresenceObservationForChannels:presenceDisabledChannels sendRequest:NO];
                         
-                        [self.messagingDelegate messagingChannel:self didDisablePresenceObservationOnChannels:presenceDisabledChannels
+                        [self.messagingDelegate messagingChannel:self didDisablePresenceObservationOn:presenceDisabledChannels
                                                        sequenced:NO];
                     }
                 }
@@ -2521,7 +2522,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
                     
                     if ([leaveRequest isSendingByUserRequest]) {
                         
-                        [self.messagingDelegate messagingChannel:self didUnsubscribeFromChannels:channels sequenced:NO];
+                        [self.messagingDelegate messagingChannel:self didUnsubscribeFrom:channels sequenced:NO];
                     }
                 }
             }
